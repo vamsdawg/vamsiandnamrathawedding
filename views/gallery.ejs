@@ -1,0 +1,80 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+<main class="container" style="<% if (galleryBg) { %>--gallery-bg:url('<%= galleryBg %>')<% } %>">
+  <div class="gallery-hero-spacer"></div>
+  <section class="gallery-content">
+    <h1 class="gallery-title">Nischithartham Gallery</h1>
+    <p>Place images in <code>public/images/gallery</code>. Supported: jpg, jpeg, png, gif, webp, avif.</p>
+    <section class="gallery">
+    <% if (images && images.length) { %>
+      <% images.forEach(function(src, idx){ %>
+        <figure class="photo" style="--i:<%= idx %>">
+          <img loading="lazy" src="<%= src %>" alt="Gallery image <%= idx+1 %>">
+        </figure>
+      <% }) %>
+    <% } else { %>
+      <p>No images yet. Add some to <code>public/images/gallery</code>.</p>
+    <% } %>
+    </section>
+  </section>
+  <div class="end-spacer"></div>
+  <script src="/js/main.js" defer></script>
+  <% if (galleryBg) { %>
+  <script>
+    // Set CSS variable on body for background image
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.body.style.setProperty('--gallery-bg', "url('<%= galleryBg %>')")
+    })
+  </script>
+  <% } %>
+  <script>
+    // Simple IntersectionObserver to add rotate-in on scroll
+    const obs = new IntersectionObserver((entries)=>{
+      for (const e of entries) {
+        if (e.isIntersecting) e.target.classList.add('in');
+      }
+    }, { rootMargin: '0px 0px -20% 0px', threshold: 0.1 });
+    document.querySelectorAll('.photo').forEach(el=>obs.observe(el));
+
+    // Reveal title and grid when scrolled roughly halfway down viewport
+    const titleEl = document.querySelector('.gallery-title');
+    const gridEl = document.querySelector('.gallery');
+    if ('IntersectionObserver' in window) {
+      const revealObs = new IntersectionObserver((entries)=>{
+        for (const e of entries) {
+          if (e.isIntersecting) e.target.classList.add('revealed');
+        }
+      }, { rootMargin: '0px 0px -40% 0px', threshold: 0.2 });
+      if (titleEl) revealObs.observe(titleEl);
+      if (gridEl) revealObs.observe(gridEl);
+    }
+    const revealNow = ()=>{
+      titleEl && titleEl.classList.add('revealed');
+      gridEl && gridEl.classList.add('revealed');
+    };
+    const checkReveal = ()=>{
+      if (window.scrollY >= window.innerHeight * 0.45) revealNow();
+    };
+    // Initial check and on scroll fallback
+    checkReveal();
+    window.addEventListener('scroll', checkReveal, { passive: true });
+  </script>
+  <noscript><style>.gallery-title,.gallery{opacity:1;transform:none}</style></noscript>
+  <style>
+  .gallery{display:grid;gap:32px;margin-top:24px}
+    .photo{transform-origin: center; transform: rotate(var(--rot, -3deg)); transition: transform .6s ease, box-shadow .6s ease; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .photo img{width:100%;height:auto;border-radius:16px;display:block}
+    .photo:nth-child(odd){--rot:-4deg}
+    .photo:nth-child(even){--rot:4deg}
+    .photo.in{transform: rotate(0deg)}
+    .end-spacer{height:20vh}
+    @media (min-width: 800px){
+      .gallery{grid-template-columns: repeat(2, 1fr)}
+      .photo:nth-child(3n){grid-column: span 2}
+    }
+    /* background hook when galleryBg is provided */
+  .page-gallery-bg{min-height:100vh;}
+  .page-gallery-bg{background: #000 var(--gallery-bg, none) center/cover fixed no-repeat;}
+  </style>
+</main>
+<%- include('partials/footer') %>

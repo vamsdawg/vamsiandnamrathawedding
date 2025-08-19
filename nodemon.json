@@ -1,0 +1,4 @@
+{
+  "watch": ["src", "views", ".env"],
+  "ext": "js,mjs,cjs,json,ejs"
+}

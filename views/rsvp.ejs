@@ -1,0 +1,23 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+<main class="container">
+  <h1>RSVP</h1>
+  <% if (typeof error !== 'undefined') { %>
+    <div class="alert"><%= error %></div>
+  <% } %>
+  <form method="post" class="form">
+    <label>Name<input type="text" name="name" value="<%= (values && values.name) || '' %>" required></label>
+    <label>Email<input type="email" name="email" value="<%= (values && values.email) || '' %>" required></label>
+    <label>Attending
+      <select name="attending" required>
+        <option value="yes" <%= values && values.attending==='yes' ? 'selected' : '' %>>Yes</option>
+        <option value="no" <%= values && values.attending==='no' ? 'selected' : '' %>>No</option>
+        <option value="maybe" <%= values && values.attending==='maybe' ? 'selected' : '' %>>Maybe</option>
+      </select>
+    </label>
+    <label>Guests<input type="number" name="guests" min="0" value="<%= (values && values.guests) || 0 %>"></label>
+    <label>Message<textarea name="message" rows="4"><%= (values && values.message) || '' %></textarea></label>
+    <button type="submit">Send RSVP</button>
+  </form>
+</main>
+<%- include('partials/footer') %>

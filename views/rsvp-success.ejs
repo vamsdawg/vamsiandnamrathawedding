@@ -1,0 +1,9 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+<main class="container">
+  <h1>Thank you!</h1>
+  <p>We have received your RSVP, <strong><%= doc.name %></strong>.</p>
+  <p>Status: <strong><%= doc.attending %></strong> • Guests: <%= doc.guests %></p>
+  <p><a href="/">Back to home</a></p>
+</main>
+<%- include('partials/footer') %>

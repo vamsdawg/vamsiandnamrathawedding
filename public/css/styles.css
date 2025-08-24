@@ -39,5 +39,4 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 /* Top spacer to show only the background first */
 .gallery-hero-spacer{height:50vh}
 /* Reveal effect for title and gallery grid */
-.gallery-title,.gallery{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease}
-.gallery-title.revealed,.gallery.revealed{opacity:1;transform:none}
+.gallery-title,.gallery{opacity:1;transform:none;transition:opacity .6s ease, transform .6s ease}

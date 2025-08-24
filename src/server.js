@@ -1,3 +1,7 @@
+// ...existing code...
+// ...existing code...
+// ...existing code...
+// Move this route after 'const app = express()' initialization below
 import path from 'node:path'
 import fs from 'node:fs'
 import express from 'express'
@@ -42,68 +46,56 @@ app.get('/our-story', (req, res) => {
 })
 
 app.get('/gallery', async (req, res) => {
-  const galleryDir = path.join(__dirname, '../public/images/gallery')
-  const imagesDir = path.join(__dirname, '../public/images')
-  let images = []
-  let galleryBg = null
+  const nischitharthamDir = path.join(__dirname, '../public/images/gallery/Nischithartham Pics');
+  let images = [];
+  let galleryBg = null;
   try {
-    const files = await fs.promises.readdir(galleryDir)
+    const files = await fs.promises.readdir(nischitharthamDir);
     images = files
       .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
       .filter(f => !/^gallery-bg\./i.test(f))
-      .map(name => `/images/gallery/${name}`)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+      .map(name => `/images/gallery/Nischithartham Pics/${name}`);
+    // Find gallery-bg image in the same folder
+    const bgFile = files.find(f => /^gallery-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
+    if (bgFile) {
+      galleryBg = `/images/gallery/Nischithartham Pics/${bgFile}`;
+    }
   } catch (e) {
     // directory may be empty or missing; ignore
   }
-  // Try to find a gallery background in images/ first, then images/gallery/
-  const candidates = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif']
-  for (const ext of candidates) {
-    const p = path.join(imagesDir, `gallery-bg.${ext}`)
-    try { await fs.promises.access(p); galleryBg = `/images/gallery-bg.${ext}`; break } catch {}
-  }
-  if (!galleryBg) {
-    for (const ext of candidates) {
-      const p = path.join(galleryDir, `gallery-bg.${ext}`)
-      try { await fs.promises.access(p); galleryBg = `/images/gallery/gallery-bg.${ext}`; break } catch {}
-    }
-  }
   if (!galleryBg && images.length) {
-    galleryBg = images[0]
+    galleryBg = images[0];
   }
-  res.render('gallery', { title: 'Nischithartham Gallery', images, bodyClass: 'page-gallery-bg', galleryBg })
-})
+  res.render('gallery', { title: 'Nischithartham Gallery', images, bodyClass: 'page-gallery-bg', galleryBg });
+});
 
 app.get('/proposal-gallery', async (req, res) => {
-  const proposalDir = path.join(__dirname, '../public/images/proposal')
-  const imagesDir = path.join(__dirname, '../public/images')
-  let images = []
-  let galleryBg = null
+  const proposalDir = path.join(__dirname, '../public/images/gallery/Proposal Pics');
+  let images = [];
+  let galleryBg = null;
   try {
-    const files = await fs.promises.readdir(proposalDir)
+    const files = await fs.promises.readdir(proposalDir);
+    console.log('Proposal Pics files:', files);
     images = files
       .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
       .filter(f => !/^proposal-bg\./i.test(f))
-      .map(name => `/images/proposal/${name}`)
-  } catch (e) {
-    // directory may be empty or missing; ignore
-  }
-  const candidates = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif']
-  // Look for proposal background in /images first
-  for (const ext of candidates) {
-    const p = path.join(imagesDir, `proposal-bg.${ext}`)
-    try { await fs.promises.access(p); galleryBg = `/images/proposal-bg.${ext}`; break } catch {}
-  }
-  // Or inside /images/proposal
-  if (!galleryBg) {
-    for (const ext of candidates) {
-      const p = path.join(proposalDir, `proposal-bg.${ext}`)
-      try { await fs.promises.access(p); galleryBg = `/images/proposal/proposal-bg.${ext}`; break } catch {}
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+      .map(name => `/images/gallery/Proposal Pics/${name}`);
+    console.log('Proposal Pics images:', images);
+    // Find proposal-bg image in the same folder
+    const bgFile = files.find(f => /^proposal-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
+    if (bgFile) {
+      galleryBg = `/images/gallery/Proposal Pics/${bgFile}`;
     }
+    console.log('Proposal Pics galleryBg:', galleryBg);
+  } catch (e) {
+    console.error('Error reading Proposal Pics:', e);
   }
-  if (!galleryBg && images.length) galleryBg = images[0]
+  if (!galleryBg && images.length) galleryBg = images[0];
 
-  res.render('proposal-gallery', { title: 'Proposal Gallery', images, bodyClass: 'page-proposal-bg', galleryBg })
-})
+  res.render('proposal-gallery', { title: 'Proposal Gallery', images, bodyClass: 'page-proposal-bg', galleryBg });
+});
 
 app.get('/ceremony', (req, res) => {
   res.render('ceremony', { title: 'Ceremony' })

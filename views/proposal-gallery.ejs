@@ -3,8 +3,10 @@
 <main class="container">
   <div class="gallery-hero-spacer"></div>
   <section class="gallery-content">
-    <h1 class="gallery-title">Proposal Gallery</h1>
-    <p>Place images in <code>public/images/proposal</code>. Supported: jpg, jpeg, png, gif, webp, avif.</p>
+    <div style="text-align:center; margin-bottom: 1.5em;">
+      <h2 style="margin:0; font-size:2.8em;">Proposal</h2>
+      <div style="margin-top:0.5em; font-size:1.4em;">12/5/2024</div>
+    </div>
     <section class="gallery">
       <% if (images && images.length) { %>
         <% images.forEach(function(src, idx){ %>
@@ -26,39 +28,18 @@
     })
   </script>
   <% } %>
-  <script>
-    const obs = new IntersectionObserver((entries)=>{
-      for (const e of entries) { if (e.isIntersecting) e.target.classList.add('in') }
-    }, { rootMargin: '0px 0px -20% 0px', threshold: 0.1 })
-    document.querySelectorAll('.photo').forEach(el=>obs.observe(el))
-
-    const titleEl = document.querySelector('.gallery-title')
-    const gridEl = document.querySelector('.gallery')
-    if ('IntersectionObserver' in window) {
-      const revealObs = new IntersectionObserver((entries)=>{
-        for (const e of entries) { if (e.isIntersecting) e.target.classList.add('revealed') }
-      }, { rootMargin: '0px 0px -40% 0px', threshold: 0.2 })
-      if (titleEl) revealObs.observe(titleEl)
-      if (gridEl) revealObs.observe(gridEl)
-    }
-    const revealNow = ()=>{ titleEl && titleEl.classList.add('revealed'); gridEl && gridEl.classList.add('revealed') }
-    const checkReveal = ()=>{ if (window.scrollY >= window.innerHeight * 0.45) revealNow() }
-    checkReveal(); window.addEventListener('scroll', checkReveal, { passive: true })
-  </script>
+  <!-- Removed rotate-in effect and scroll reveal logic -->
   <noscript><style>.gallery-title,.gallery{opacity:1;transform:none}</style></noscript>
   <style>
     .gallery{display:grid;gap:32px;margin-top:24px}
-    .photo{transform-origin:center;transform:rotate(var(--rot,-3deg));transition:transform .6s ease,box-shadow .6s ease;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .photo{box-shadow:0 10px 30px rgba(0,0,0,.25)}
     .photo img{width:100%;height:auto;border-radius:16px;display:block}
-    .photo:nth-child(odd){--rot:-4deg}
-    .photo:nth-child(even){--rot:4deg}
-    .photo.in{transform:rotate(0deg)}
+  /* reverted orientation-based grid span */
     .end-spacer{height:20vh}
     @media (min-width:800px){.gallery{grid-template-columns:repeat(2,1fr)}.photo:nth-child(3n){grid-column:span 2}}
 
     .page-proposal-bg{min-height:100vh;background:#000 var(--gallery-bg, none) center/cover fixed no-repeat}
-    .gallery-title,.gallery{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
-    .gallery-title.revealed,.gallery.revealed{opacity:1;transform:none}
+    .gallery-title,.gallery{opacity:1;transform:none;transition:opacity .6s ease,transform .6s ease}
     .gallery-content{background:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.85));border-radius:18px;padding:24px 24px 48px;margin-top:24px}
     .page-proposal-bg h1{color:#fff}
   </style>

@@ -1,16 +1,121 @@
+
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
-<main class="container">
-  <section class="event-schedule-content" style="background:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.85));border-radius:18px;padding:24px 24px 48px;margin-top:24px">
-    <h1 class="page-title" style="text-align:center; font-size:2.8em; margin-bottom:1em;">Event Schedule</h1>
-    <div style="text-align:center; margin-bottom:2em; color:var(--muted); font-size:1.2em;">
-      <!-- Paste your event information here -->
-      <p>Welcome to the Event Schedule page! Here you can find details about each wedding event. More info and a Google Map will be added soon.</p>
-    </div>
-    <div id="map" style="width:100%;height:300px;background:#222;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#aaa;">
-      Google Map will appear here.
-    </div>
-  </section>
-  <div class="end-spacer" style="height:20vh"></div>
-</main>
-<%- include('partials/footer') %>
+<body style="min-height:100vh; margin:0; background: url('/images/gallery/Event Schedule/background.png') center/cover fixed no-repeat;">
+  <main class="container" style="margin-top: 40px;">
+    <div style="height: 70vh;"></div>
+    
+    <!-- Wedding Section -->
+    <section class="event-section" style="background:linear-gradient(to bottom, rgba(0,0,0,.65), rgba(0,0,0,.85));border-radius:18px;padding:32px;margin-bottom:32px;">
+      <h2 style="color:var(--accent); font-size:2.2em; margin-bottom:0.3em; text-align:center;">Wedding Ceremony (Pelli – పెళ్లి)</h2>
+      <h3 style="color:white; font-size:1.8em; margin-bottom:0.5em; text-align:center;">BAPS Swaminarayan Mandir Atlanta</h3>
+      <p style="color:var(--accent); font-size:1.4em; margin-bottom:1.5em; text-align:center; font-weight:600;">8:00 AM</p>
+      
+      <div style="color:var(--muted); font-size:1.1em; margin-bottom:2em; text-align:center; line-height:1.6;">
+        <p>Please join us for our traditional Telugu wedding at the BAPS Swaminarayan Mandir in Atlanta. The wedding will be guided by Hindu rituals, honoring our culture, families, and the sacred beginning of our life together.</p>
+        <p>Please arrive by 7:45 AM for 8:00 AM start. Traditional Indian attire is encouraged.</p>
+      </div>
+      
+      <div id="wedding-map" style="width:100%;height:350px;background:#222;border-radius:12px;margin-bottom:16px;"></div>
+      <div style="text-align:center;">
+        <button onclick="copyAddress('wedding')" style="background:var(--accent);color:#222;border:none;padding:12px 24px;border-radius:999px;cursor:pointer;font-weight:600;margin-right:12px;">Copy Address</button>
+        <button onclick="openDirections('wedding')" style="background:transparent;color:var(--accent);border:2px solid var(--accent);padding:10px 24px;border-radius:999px;cursor:pointer;font-weight:600;">Get Directions</button>
+      </div>
+    </section>
+
+    <!-- Reception Section -->
+    <section class="event-section" style="background:linear-gradient(to bottom, rgba(0,0,0,.65), rgba(0,0,0,.85));border-radius:18px;padding:32px;margin-bottom:32px;">
+      <h2 style="color:var(--accent); font-size:2.2em; margin-bottom:0.3em; text-align:center;">Reception</h2>
+      <h3 style="color:white; font-size:1.8em; margin-bottom:0.5em; text-align:center;">Crowne Plaza Norcross</h3>
+      <p style="color:var(--accent); font-size:1.4em; margin-bottom:1.5em; text-align:center; font-weight:600;">6:30 PM</p>
+      
+      <div style="color:var(--muted); font-size:1.1em; margin-bottom:2em; text-align:center; line-height:1.6;">
+        <p>Celebrate with us at our wedding reception with dinner, dancing, and an evening full of joy. From cocktail hour at 6:30 PM to dinner at 8:00 PM, the night will be filled with music, laughter, and celebration with our closest family and friends.</p>
+        <p>Semi-formal attire requested.</p>
+      </div>
+      
+      <div id="reception-map" style="width:100%;height:350px;background:#222;border-radius:12px;margin-bottom:16px;"></div>
+      <div style="text-align:center;">
+        <button onclick="copyAddress('reception')" style="background:var(--accent);color:#222;border:none;padding:12px 24px;border-radius:999px;cursor:pointer;font-weight:600;margin-right:12px;">Copy Address</button>
+        <button onclick="openDirections('reception')" style="background:transparent;color:var(--accent);border:2px solid var(--accent);padding:10px 24px;border-radius:999px;cursor:pointer;font-weight:600;">Get Directions</button>
+      </div>
+    </section>
+    
+    <div class="end-spacer" style="height:20vh"></div>
+  </main>
+
+  <script>
+    // Event locations
+    const locations = {
+      wedding: {
+        name: 'BAPS Swaminarayan Mandir Atlanta',
+        address: '460 Rockbridge Rd NW, Lilburn, GA 30047',
+        lat: 33.8893,
+        lng: -84.1355
+      },
+      reception: {
+        name: 'Crowne Plaza Norcross',
+        address: '6050 Peachtree Industrial Blvd, Norcross, GA 30071',
+        lat: 33.9424,
+        lng: -84.2469
+      }
+    };
+
+    // Initialize maps when page loads
+    function initMaps() {
+      // Wedding map
+      const weddingMap = new google.maps.Map(document.getElementById('wedding-map'), {
+        center: { lat: locations.wedding.lat, lng: locations.wedding.lng },
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        styles: [
+          { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] }
+        ]
+      });
+      
+      new google.maps.Marker({
+        position: { lat: locations.wedding.lat, lng: locations.wedding.lng },
+        map: weddingMap,
+        title: locations.wedding.name
+      });
+
+      // Reception map
+      const receptionMap = new google.maps.Map(document.getElementById('reception-map'), {
+        center: { lat: locations.reception.lat, lng: locations.reception.lng },
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        styles: [
+          { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] }
+        ]
+      });
+      
+      new google.maps.Marker({
+        position: { lat: locations.reception.lat, lng: locations.reception.lng },
+        map: receptionMap,
+        title: locations.reception.name
+      });
+    }
+
+    // Copy address to clipboard
+    function copyAddress(venue) {
+      const address = locations[venue].address;
+      navigator.clipboard.writeText(address).then(() => {
+        alert('Address copied to clipboard!');
+      });
+    }
+
+    // Open directions in Google Maps
+    function openDirections(venue) {
+      const address = encodeURIComponent(locations[venue].address);
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${address}`, '_blank');
+    }
+  </script>
+  
+  <!-- Load Google Maps API -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADSZ9lbX4v-oesOpC_dqk_7aWPQhHUrq0&callback=initMaps"></script>
+  <%- include('partials/footer') %>
+</body>

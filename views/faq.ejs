@@ -1,0 +1,36 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+<% if (faqBg) { %>
+<style>
+  body.page-faq-bg { background: url('<%= faqBg %>') center/cover fixed no-repeat; }
+</style>
+<% } %>
+<main class="container" style="margin:0 auto;">
+    <div style="height:30vh"></div>
+    <section style="background:linear-gradient(to bottom, rgba(0,0,0,.65), rgba(0,0,0,.85));border-radius:18px;padding:32px 32px 40px;margin-top:24px;max-width:900px;margin-left:auto;margin-right:auto;">
+      <h1 style="color:var(--accent);text-align:center;font-size:2.5em;margin:0 0 1em">Frequently Asked Questions</h1>
+
+      <div style="color:var(--muted);font-size:1.05em;line-height:1.6">
+        <div class="faq-item" style="margin-bottom:2.2em;">
+          <h2 style="color:var(--accent);font-size:1.4em;margin:0 0 .5em;">Where can I stay for the events?</h2>
+          <p>We have reserved a hotel block at the <strong>Crowne Plaza Norcross</strong> for both Friday night and Saturday night. A limited number of rooms are available at a special wedding rate. Please use the booking code below when reserving your room.</p>
+          <div class="faq-callout" style="background:#111;padding:12px 16px;border:1px solid #333;border-radius:10px;margin:12px 0;font-size:.95rem;letter-spacing:.05em;">
+            <strong>Hotel Block Code:</strong> <span class="hotel-code" style="color:var(--accent)">[ADD CODE HERE]</span>
+          </div>
+          <p>If you have any issues booking, please reach out to us and we’ll be happy to help.</p>
+        </div>
+
+        <div class="faq-item" style="margin-bottom:2.2em;">
+          <h2 style="color:var(--accent);font-size:1.4em;margin:0 0 .5em;">Is parking available?</h2>
+            <p>Yes! Parking is <strong>free</strong> at both the Crowne Plaza hotel and the wedding venue for the entire weekend.</p>
+        </div>
+
+        <div class="faq-item" style="margin-bottom:0;">
+          <h2 style="color:var(--accent);font-size:1.4em;margin:0 0 .5em;">What should I do if I have special dietary restrictions?</h2>
+          <p>Please email us at <a style="color:var(--accent)" href="mailto:nam.vamsi@gmail.com">nam.vamsi@gmail.com</a> with any dietary requests so we can do our best to accommodate you.</p>
+        </div>
+      </div>
+    </section>
+    <div style="height:20vh"></div>
+  </main>
+<%- include('partials/footer') %>

@@ -1,23 +1,273 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
-<main class="container">
-  <h1>RSVP</h1>
-  <% if (typeof error !== 'undefined') { %>
-    <div class="alert"><%= error %></div>
-  <% } %>
-  <form method="post" class="form">
-    <label>Name<input type="text" name="name" value="<%= (values && values.name) || '' %>" required></label>
-    <label>Email<input type="email" name="email" value="<%= (values && values.email) || '' %>" required></label>
-    <label>Attending
-      <select name="attending" required>
-        <option value="yes" <%= values && values.attending==='yes' ? 'selected' : '' %>>Yes</option>
-        <option value="no" <%= values && values.attending==='no' ? 'selected' : '' %>>No</option>
-        <option value="maybe" <%= values && values.attending==='maybe' ? 'selected' : '' %>>Maybe</option>
-      </select>
-    </label>
-    <label>Guests<input type="number" name="guests" min="0" value="<%= (values && values.guests) || 0 %>"></label>
-    <label>Message<textarea name="message" rows="4"><%= (values && values.message) || '' %></textarea></label>
-    <button type="submit">Send RSVP</button>
-  </form>
-</main>
+
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: url('/images/gallery/RSVP Image/RSVP Background.png');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .rsvp-background {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            padding-top: 3rem;
+            box-sizing: border-box;
+        }
+
+        .rsvp-container {
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 15px;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    display: block;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-input, .form-select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: rgba(17, 17, 17, 0.9);
+    color: #fff;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #d9b166;
+    box-shadow: 0 0 5px rgba(217, 177, 102, 0.3);
+  }
+  
+  .search-results {
+    background: rgba(34, 34, 34, 0.95);
+    border: 1px solid #444;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    display: none;
+  }
+  
+  .search-item {
+    padding: 12px;
+    color: #fff;
+    cursor: pointer;
+    border-bottom: 1px solid #444;
+  }
+  
+  .search-item:hover {
+    background: rgba(217, 177, 102, 0.2);
+  }
+  
+  .search-item:last-child {
+    border-bottom: none;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: #d9b166;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .submit-btn:hover {
+    background: #c19b4d;
+  }
+</style>
+
+<div class="rsvp-background">
+  <div class="rsvp-container">
+    <h1 style="color: #fff; text-align: center; margin: 0 0 2rem 0; font-size: 2.5rem;">RSVP</h1>
+    
+    <% if (typeof error !== 'undefined') { %>
+      <div style="background: rgba(255, 0, 0, 0.2); color: #ff6b6b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ff6b6b;">
+        <%= error %>
+      </div>
+    <% } %>
+    
+    <form method="post" id="rsvpForm">
+      <input type="hidden" name="guestId" id="selectedGuestId">
+      
+      <!-- Guest Search - Always Visible -->
+      <div class="form-group">
+        <label class="form-label">Search for your family name:</label>
+        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." readonly>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+      
+      <!-- Rest of form - Hidden until family selected -->
+      <div id="rsvpFormFields" style="display: none;">
+        <!-- Selected Family Display -->
+        <div class="form-group">
+          <div id="selectedFamily" style="background: rgba(217, 177, 102, 0.2); padding: 1rem; border-radius: 8px; border: 1px solid rgba(217, 177, 102, 0.5);">
+            <h3 style="color: #d9b166; margin: 0; font-size: 1.2rem;" id="familyName">Selected Family</h3>
+          </div>
+        </div>
+
+        <!-- Number of Adults -->
+        <div class="form-group">
+          <label class="form-label">Number of Guests Attending:</label>
+          <input type="number" name="adultsAttending" class="form-input" min="0" max="10" required>
+        </div>
+        
+        <!-- Event Selection - Dropdown with multiple options -->
+        <div class="form-group">
+          <label class="form-label">Event Selection:</label>
+          <select name="attendingWedding" class="form-select" required style="margin-bottom: 0.5rem;">
+            <option value="">Wedding Ceremony?</option>
+            <option value="yes">Yes, attending Wedding Ceremony</option>
+            <option value="no">No, not attending Wedding Ceremony</option>
+          </select>
+          <select name="attendingReception" class="form-select" required>
+            <option value="">Reception?</option>
+            <option value="yes">Yes, attending Reception</option>
+            <option value="no">No, not attending Reception</option>
+          </select>
+        </div>
+        
+        <!-- Hotel Block -->
+        <div class="form-group">
+          <label class="form-label">Using Hotel Block?</label>
+          <select name="usingHotelBlock" class="form-select" required>
+            <option value="">Please select...</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        
+        <!-- Message -->
+        <div class="form-group">
+          <label class="form-label">Message (optional):</label>
+          <textarea name="message" class="form-input" rows="4" placeholder="Please include the names of all guests attending from your party..."></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">Send RSVP</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const searchInput = document.getElementById('guestSearch');
+  const searchResults = document.getElementById('searchResults');
+  const rsvpForm = document.getElementById('rsvpForm');
+  let searchTimeout;
+
+  // Make search input clickable to start typing
+  searchInput.addEventListener('click', function() {
+    this.removeAttribute('readonly');
+    this.focus();
+  });
+
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+      searchResults.style.display = 'none';
+      return;
+    }
+
+    searchTimeout = setTimeout(() => {
+      fetch(`/rsvp/search-guests?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(guests => {
+          displaySearchResults(guests);
+        })
+        .catch(err => {
+          console.error('Search error:', err);
+          searchResults.innerHTML = '<div class="search-item">Search failed. Please try again.</div>';
+          searchResults.style.display = 'block';
+        });
+    }, 300);
+  });
+
+  function displaySearchResults(guests) {
+    if (guests.length === 0) {
+      searchResults.innerHTML = '<div class="search-item">No families found. Please check the spelling.</div>';
+      searchResults.style.display = 'block';
+      return;
+    }
+
+    const html = guests.map(guest => {
+      const status = guest.rsvpSubmitted ? ' (Already responded)' : '';
+      return `<div class="search-item" onclick="selectGuest('${guest.guestId}', '${guest.name}', ${guest.rsvpSubmitted})">${guest.name}${status}</div>`;
+    }).join('');
+
+    searchResults.innerHTML = html;
+    searchResults.style.display = 'block';
+  }
+
+  function selectGuest(guestId, guestName, alreadySubmitted) {
+    if (alreadySubmitted) {
+      const confirmUpdate = confirm(`${guestName} has already submitted an RSVP. Do you want to update their response?`);
+      if (!confirmUpdate) {
+        searchResults.style.display = 'none';
+        return;
+      }
+    }
+    
+    document.getElementById('selectedGuestId').value = guestId;
+    searchInput.value = guestName;
+    searchInput.setAttribute('readonly', 'true');
+    searchResults.style.display = 'none';
+    
+    // Show the family name in the selected family box
+    document.getElementById('familyName').textContent = guestName;
+    
+    // Show the rest of the form
+    document.getElementById('rsvpFormFields').style.display = 'block';
+    
+    // Show different submit button text if updating
+    const submitBtn = document.querySelector('.submit-btn');
+    if (alreadySubmitted) {
+      submitBtn.textContent = 'Update RSVP';
+      submitBtn.style.background = '#e6c374'; // Slightly different color for updates
+    } else {
+      submitBtn.textContent = 'Send RSVP';
+      submitBtn.style.background = '#d9b166';
+    }
+    
+    // Scroll to the form fields
+    document.getElementById('rsvpFormFields').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Hide search results when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
+</script>
+
 <%- include('partials/footer') %>

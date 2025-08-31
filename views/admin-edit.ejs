@@ -1,0 +1,45 @@
+<% /* Edit Guest RSVP Form */ %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit RSVP Entry</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Edit RSVP Entry</h1>
+    <form method="POST" action="/admin/edit/<%= guest._id %>">
+      <label>Name:<br>
+        <input type="text" name="name" value="<%= guest.name %>" required>
+      </label><br><br>
+      <label>Adults Attending:<br>
+        <input type="number" name="adultsAttending" value="<%= guest.adultsAttending %>" min="0">
+      </label><br><br>
+      <label>Attending Wedding:<br>
+        <select name="attendingWedding">
+          <option value="true" <%= guest.attendingWedding ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%= !guest.attendingWedding ? 'selected' : '' %>>No</option>
+        </select>
+      </label><br><br>
+      <label>Attending Reception:<br>
+        <select name="attendingReception">
+          <option value="true" <%= guest.attendingReception ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%= !guest.attendingReception ? 'selected' : '' %>>No</option>
+        </select>
+      </label><br><br>
+      <label>Using Hotel Block:<br>
+        <select name="usingHotelBlock">
+          <option value="true" <%= guest.usingHotelBlock ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%= !guest.usingHotelBlock ? 'selected' : '' %>>No</option>
+        </select>
+      </label><br><br>
+      <label>Message:<br>
+        <textarea name="message"><%= guest.message %></textarea>
+      </label><br><br>
+      <button type="submit">Save Changes</button>
+      <a href="/admin/dashboard" style="margin-left:20px;">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>

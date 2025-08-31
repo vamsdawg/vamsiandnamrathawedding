@@ -5,12 +5,14 @@
 import path from 'node:path'
 import fs from 'node:fs'
 import express from 'express'
+import session from 'express-session'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { fileURLToPath } from 'node:url'
 
 import rsvpRouter from './tabs/rsvp.js'
+import adminRouter from './tabs/admin.js'
 
 dotenv.config()
 
@@ -28,6 +30,17 @@ app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(express.static(path.join(__dirname, '../public')))
+
+// Session middleware for admin authentication
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'wedding-admin-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false, // Set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}))
 
 // Expose names/date to all views
 app.use((req, res, next) => {
@@ -102,9 +115,45 @@ app.get('/ceremony', (req, res) => {
 })
 
 app.use('/rsvp', rsvpRouter)
+app.use('/', adminRouter)
 
 app.get('/registry', (req, res) => {
-  res.render('registry', { title: 'Registry' })
+  // Look for a background image in gallery/Registry with supported naming patterns
+  (async () => {
+    const regDir = path.join(__dirname, '../public/images/gallery/Registry')
+    let registryBg = null
+    try {
+      const files = await fs.promises.readdir(regDir)
+      const bgFile = files.find(f => /^(registry[- _]?bg|registry[- _]?background|registrybackground|registry[- _]?bg[- _]?image)\.(jpe?g|png|gif|webp|avif)$/i.test(f))
+      if (bgFile) registryBg = `/images/gallery/Registry/${bgFile}`
+    } catch (e) {
+      // ignore if folder empty
+    }
+    const bodyClass = registryBg ? 'page-registry-bg' : ''
+    res.render('registry', { title: 'Registry', bodyClass, registryBg })
+  })()
+})
+// Event Schedule page
+app.get('/event-schedule', (req, res) => {
+  res.render('event-schedule', { title: 'Event Schedule' });
+});
+
+// FAQ page with optional background image (drop an image named faq-bg.* into /public/images/gallery/FAQ)
+app.get('/faq', async (req, res) => {
+  const faqDir = path.join(__dirname, '../public/images/gallery/FAQ')
+  let faqBg = null
+  try {
+    const files = await fs.promises.readdir(faqDir)
+    // Accept several naming patterns: faq-bg.*, faq background.*, faqbackground.*, faq-bg-image.*
+    const bgFile = files.find(f => /^(faq[- _]?bg|faq[- _]?background|faqbackground|faq[- _]?bg[- _]?image)\.(jpe?g|png|gif|webp|avif)$/i.test(f))
+    if (bgFile) {
+      faqBg = `/images/gallery/FAQ/${bgFile}`
+    }
+  } catch (e) {
+    // directory may be empty; ignore
+  }
+  const bodyClass = faqBg ? 'page-faq-bg' : ''
+  res.render('faq', { title: 'FAQ', bodyClass, faqBg })
 })
 
 // 404
@@ -120,7 +169,13 @@ async function start () {
   app.listen(port, () => console.log(`Wedding site on http://localhost:${port}`))
 }
 
-start().catch(err => {
-  console.error('Failed to start server:', err)
-  process.exit(1)
-})
+// Guard against multiple (duplicate) starts when nodemon spawns or file is imported twice
+if (globalThis.__weddingServerStarted) {
+  console.log('Server already started – skipping duplicate start() call')
+} else {
+  globalThis.__weddingServerStarted = true
+  start().catch(err => {
+    console.error('Failed to start server:', err)
+    process.exit(1)
+  })
+}

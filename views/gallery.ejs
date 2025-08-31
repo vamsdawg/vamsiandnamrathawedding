@@ -3,10 +3,24 @@
 <main class="container" style="<% if (galleryBg) { %>--gallery-bg:url('<%= galleryBg %>')<% } %>">
   <div class="gallery-hero-spacer"></div>
   <section class="gallery-content">
-    <div style="text-align:center; margin-bottom: 1.5em;">
-  <h2 style="margin:0; font-size:2.8em;">Nischithartham</h2>
+    <div style="text-align:center; margin-bottom: 2em;">
+      <h2 style="margin:0; font-size:2.8em;">Nischithartham (Engagement)</h2>
       <div style="margin-top:0.5em; font-size:1.4em;">3/8/25</div>
     </div>
+    
+    <!-- YouTube Video Embed -->
+    <div style="text-align: center; margin-bottom: 2em;">
+      <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <iframe 
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+          src="https://www.youtube.com/embed/FyNYGpJRpOY?rel=0&modestbranding=1&showinfo=0" 
+          title="Nischithartham Video" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+    
     <section class="gallery">
     <% if (images && images.length) { %>
       <% images.forEach(function(src, idx){ %>

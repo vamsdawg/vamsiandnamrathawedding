@@ -1,9 +1,32 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
 <main class="container">
-  <h1>Thank you!</h1>
-  <p>We have received your RSVP, <strong><%= doc.name %></strong>.</p>
-  <p>Status: <strong><%= doc.attending %></strong> • Guests: <%= doc.guests %></p>
-  <p><a href="/">Back to home</a></p>
+  <h1><%= isUpdate ? 'RSVP Updated!' : 'Thank you!' %></h1>
+  
+  <% if (typeof guest !== 'undefined') { %>
+    <!-- Guest system response -->
+    <p>We have <%= isUpdate ? 'updated' : 'received' %> your RSVP, <strong><%= guest.name %></strong>.</p>
+    <div style="background: rgba(217, 177, 102, 0.1); padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 1px solid rgba(217, 177, 102, 0.3);">
+      <h3 style="color: #d9b166; margin-top: 0;">RSVP Details:</h3>
+      <p><strong>Adults Attending:</strong> <%= guest.adultsAttending %></p>
+      <p><strong>Wedding Ceremony:</strong> <%= guest.attendingWedding ? 'Yes' : 'No' %></p>
+      <p><strong>Reception:</strong> <%= guest.attendingReception ? 'Yes' : 'No' %></p>
+      <p><strong>Using Hotel Block:</strong> <%= guest.usingHotelBlock ? 'Yes' : 'No' %></p>
+      <% if (guest.message) { %>
+        <p><strong>Message:</strong> <%= guest.message %></p>
+      <% } %>
+    </div>
+    <% if (isUpdate) { %>
+      <p style="color: #d9b166;"><em>Your previous RSVP has been updated with these new details.</em></p>
+    <% } %>
+  <% } else if (typeof doc !== 'undefined') { %>
+    <!-- Fallback system response -->
+    <p>We have received your RSVP, <strong><%= doc.name %></strong>.</p>
+    <p>Status: <strong><%= doc.attending %></strong> • Guests: <%= doc.guests %></p>
+  <% } %>
+  
+  <p style="margin-top: 2rem;">
+    <a href="/" style="color: #d9b166; text-decoration: none; font-weight: bold;">← Back to home</a>
+  </p>
 </main>
 <%- include('partials/footer') %>

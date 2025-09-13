@@ -1,0 +1,11 @@
+# Exclude development files from serverless function (but keep images)
+scripts/
+*.md
+.env.example
+.env.production
+.git*
+node_modules/.cache
+*.log
+*.tmp
+DEPLOYMENT.md
+README.md

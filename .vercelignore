@@ -1,4 +1,6 @@
-# Exclude development files from serverless function (but keep images)
+# Exclude large image directory from serverless functions
+public/images/
+# Exclude development files
 scripts/
 *.md
 .env.example

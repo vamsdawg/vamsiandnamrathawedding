@@ -21,11 +21,16 @@
       </div>
     </div>
     
-    <section class="gallery">
+    <section class="gallery gallery-grid">
     <% if (images && images.length) { %>
       <% images.forEach(function(src, idx){ %>
         <figure class="photo" style="--i:<%= idx %>">
-          <img loading="lazy" src="<%= src %>" alt="Gallery image <%= idx+1 %>">
+          <%- include('partials/responsive-image', {
+            src: src,
+            alt: `Nischithartham photo ${idx + 1}`,
+            sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+            className: 'gallery-image'
+          }) %>
         </figure>
       <% }) %>
     <% } else { %>
@@ -35,6 +40,7 @@
   </section>
   <div class="end-spacer"></div>
   <script src="/js/main.js" defer></script>
+  <script src="/js/image-enhancements.js" defer></script>
   <% if (galleryBg) { %>
   <script>
     // Set CSS variable on body for background image

@@ -11,7 +11,13 @@
       <% if (images && images.length) { %>
         <% images.forEach(function(src, idx){ %>
           <figure class="photo" style="--i:<%= idx %>">
-            <img loading="lazy" src="<%= src %>" alt="Proposal gallery image <%= idx+1 %>">
+            <%- include('partials/responsive-image', {
+              src: src,
+              alt: `Proposal photo ${idx + 1}`,
+              sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+              className: 'gallery-image',
+              loading: 'lazy'
+            }) %>
           </figure>
         <% }) %>
       <% } else { %>

@@ -7,33 +7,61 @@
       <h2 style="margin:0; font-size:2.8em;">Proposal</h2>
       <div style="margin-top:0.5em; font-size:1.4em;">12/6/2024</div>
     </div>
-    <section class="gallery">
-      <% if (images && images.length) { %>
-        <% images.forEach(function(src, idx){ %>
-          <figure class="photo" style="--i:<%= idx %>">
-            <%- include('partials/responsive-image', {
-              src: src,
-              alt: `Proposal photo ${idx + 1}`,
-              sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-              className: 'gallery-image',
-              loading: 'lazy'
-            }) %>
-          </figure>
-        <% }) %>
-      <% } else { %>
-        <p>No images yet. Add some to <code>public/images/proposal</code>.</p>
-      <% } %>
+    <section class="gallery" id="proposal-gallery-container">
+      <div style="text-align: center; color: var(--muted); padding: 2rem;">
+        Loading gallery...
+      </div>
     </section>
   </section>
   <div class="end-spacer"></div>
   <script src="/js/main.js" defer></script>
-  <% if (galleryBg) { %>
   <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
-      document.body.style.setProperty('--gallery-bg', "url('<%= galleryBg %>')")
+    // Load proposal gallery images dynamically
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/gallery-data?type=proposal')
+        const data = await response.json()
+        
+        const container = document.getElementById('proposal-gallery-container')
+        container.innerHTML = ''
+        
+        data.images.forEach((src, idx) => {
+          const figure = document.createElement('figure')
+          figure.className = 'photo'
+          figure.style.setProperty('--i', idx)
+          
+          // Create responsive image structure
+          figure.innerHTML = `
+            <picture>
+              <source media="(max-width: 640px)" 
+                      srcset="${src.replace('.jpg', '-small-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 640px)" 
+                      srcset="${src.replace('.jpg', '-small-optimized.jpg')}" type="image/jpeg">
+              <source media="(max-width: 1280px)" 
+                      srcset="${src.replace('.jpg', '-medium-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 1280px)" 
+                      srcset="${src.replace('.jpg', '-medium-optimized.jpg')}" type="image/jpeg">
+              <source media="(max-width: 1920px)" 
+                      srcset="${src.replace('.jpg', '-large-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 1920px)" 
+                      srcset="${src.replace('.jpg', '-large-optimized.jpg')}" type="image/jpeg">
+              <source srcset="${src.replace('.jpg', '-optimized.webp')}" type="image/webp">
+              <img src="${src.replace('.jpg', '-optimized.jpg')}" 
+                   alt="Proposal photo ${idx + 1}" 
+                   class="gallery-image"
+                   loading="lazy">
+            </picture>
+          `
+          
+          container.appendChild(figure)
+        })
+      } catch (error) {
+        console.error('Failed to load proposal gallery:', error)
+        document.getElementById('proposal-gallery-container').innerHTML = 
+          '<p style="text-align: center; color: var(--muted);">Failed to load gallery images.</p>'
+      }
     })
   </script>
-  <% } %>
   <!-- Removed rotate-in effect and scroll reveal logic -->
   <noscript><style>.gallery-title,.gallery{opacity:1;transform:none}</style></noscript>
   <style>

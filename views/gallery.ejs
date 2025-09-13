@@ -21,34 +21,62 @@
       </div>
     </div>
     
-    <section class="gallery gallery-grid">
-    <% if (images && images.length) { %>
-      <% images.forEach(function(src, idx){ %>
-        <figure class="photo" style="--i:<%= idx %>">
-          <%- include('partials/responsive-image', {
-            src: src,
-            alt: `Nischithartham photo ${idx + 1}`,
-            sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-            className: 'gallery-image'
-          }) %>
-        </figure>
-      <% }) %>
-    <% } else { %>
-      <p>No images yet. Add some to <code>public/images/gallery</code>.</p>
-    <% } %>
+    <section class="gallery gallery-grid" id="gallery-container">
+      <div style="text-align: center; color: var(--muted); padding: 2rem;">
+        Loading gallery...
+      </div>
     </section>
   </section>
   <div class="end-spacer"></div>
   <script src="/js/main.js" defer></script>
   <script src="/js/image-enhancements.js" defer></script>
-  <% if (galleryBg) { %>
   <script>
-    // Set CSS variable on body for background image
-    document.addEventListener('DOMContentLoaded', ()=>{
-      document.body.style.setProperty('--gallery-bg', "url('<%= galleryBg %>')")
+    // Load gallery images dynamically
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/gallery-data?type=nischithartham')
+        const data = await response.json()
+        
+        const container = document.getElementById('gallery-container')
+        container.innerHTML = ''
+        
+        data.images.forEach((src, idx) => {
+          const figure = document.createElement('figure')
+          figure.className = 'photo'
+          figure.style.setProperty('--i', idx)
+          
+          // Create responsive image structure
+          figure.innerHTML = `
+            <picture>
+              <source media="(max-width: 640px)" 
+                      srcset="${src.replace('.jpg', '-small-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 640px)" 
+                      srcset="${src.replace('.jpg', '-small-optimized.jpg')}" type="image/jpeg">
+              <source media="(max-width: 1280px)" 
+                      srcset="${src.replace('.jpg', '-medium-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 1280px)" 
+                      srcset="${src.replace('.jpg', '-medium-optimized.jpg')}" type="image/jpeg">
+              <source media="(max-width: 1920px)" 
+                      srcset="${src.replace('.jpg', '-large-optimized.webp')}" type="image/webp">
+              <source media="(max-width: 1920px)" 
+                      srcset="${src.replace('.jpg', '-large-optimized.jpg')}" type="image/jpeg">
+              <source srcset="${src.replace('.jpg', '-optimized.webp')}" type="image/webp">
+              <img src="${src.replace('.jpg', '-optimized.jpg')}" 
+                   alt="Nischithartham photo ${idx + 1}" 
+                   class="gallery-image"
+                   loading="lazy">
+            </picture>
+          `
+          
+          container.appendChild(figure)
+        })
+      } catch (error) {
+        console.error('Failed to load gallery:', error)
+        document.getElementById('gallery-container').innerHTML = 
+          '<p style="text-align: center; color: var(--muted);">Failed to load gallery images.</p>'
+      }
     })
   </script>
-  <% } %>
   <!-- Removed rotate-in effect and scroll reveal logic -->
   <noscript><style>.gallery-title,.gallery{opacity:1;transform:none}</style></noscript>
   <style>

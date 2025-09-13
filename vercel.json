@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "vamsi-namratha-wedding",
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
@@ -25,6 +19,5 @@
       "maxDuration": 30
     }
   },
-  "regions": ["iad1"],
-  "outputDirectory": "public"
+  "regions": ["iad1"]
 }

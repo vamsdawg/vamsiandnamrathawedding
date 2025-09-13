@@ -1,0 +1,74 @@
+<!-- 
+Responsive Image Component for Wedding Website
+Usage examples for your EJS templates:
+
+1. Gallery images:
+<%- include('partials/responsive-image', {
+  src: '/images/gallery/Nischithartham Pics/1.jpg',
+  alt: 'Wedding photo',
+  sizes: '(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw'
+}) %>
+
+2. Hero/Background images:
+<%- include('partials/responsive-image', {
+  src: '/images/hero.jpg',
+  alt: 'Wedding couple',
+  sizes: '100vw',
+  priority: true
+}) %>
+-->
+
+<%
+  // Extract base path and extension
+  const ext = src.substring(src.lastIndexOf('.'));
+  const basePath = src.substring(0, src.lastIndexOf('.'));
+  
+  // Generate responsive image paths
+  const webpSrcSet = [
+    `${basePath}-small-optimized.webp 640w`,
+    `${basePath}-medium-optimized.webp 1280w`, 
+    `${basePath}-large-optimized.webp 1920w`
+  ].join(', ');
+  
+  const jpegSrcSet = [
+    `${basePath}-small-optimized.jpg 640w`,
+    `${basePath}-medium-optimized.jpg 1280w`,
+    `${basePath}-large-optimized.jpg 1920w`
+  ].join(', ');
+  
+  // Default fallback
+  const fallbackSrc = `${basePath}-medium-optimized.jpg`;
+  
+  // Default sizes if not provided
+  const imageSizes = sizes || '(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw';
+  
+  // Loading strategy
+  const loading = priority ? 'eager' : 'lazy';
+  const fetchPriority = priority ? 'high' : 'auto';
+%>
+
+<picture>
+  <!-- Modern browsers: WebP format -->
+  <source 
+    srcset="<%= webpSrcSet %>" 
+    sizes="<%= imageSizes %>"
+    type="image/webp"
+  >
+  
+  <!-- Fallback: JPEG format -->
+  <source 
+    srcset="<%= jpegSrcSet %>" 
+    sizes="<%= imageSizes %>"
+    type="image/jpeg"
+  >
+  
+  <!-- Final fallback image -->
+  <img 
+    src="<%= fallbackSrc %>" 
+    alt="<%= alt || '' %>"
+    loading="<%= loading %>"
+    fetchpriority="<%= fetchPriority %>"
+    <% if (typeof className !== 'undefined') { %>class="<%= className %>"<% } %>
+    <% if (typeof style !== 'undefined') { %>style="<%= style %>"<% } %>
+  >
+</picture>

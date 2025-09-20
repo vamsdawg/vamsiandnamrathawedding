@@ -136,9 +136,29 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 
 /* Mobile Background Image Fixes */
 @media (max-width: 768px) {
-  .page-gallery-bg{background-attachment:scroll;background-size:cover;background-position:center;}
-  .page-faq-bg{background-attachment:scroll;background-size:cover;background-position:center;}
-  .page-registry-bg{background-attachment:scroll;}
+  .page-gallery-bg{
+    background-attachment:scroll;
+    background-size:cover;
+    background-position:center;
+    background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), var(--gallery-bg, none);
+  }
+  .page-faq-bg{
+    background-attachment:scroll;
+    background-size:cover;
+    background-position:center;
+    background-image:linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('/images/gallery/FAQ/faqbackground.png');
+  }
+  .page-registry-bg{
+    background-attachment:scroll;
+    background-size:cover;
+    background-position:center;
+  }
+  .page-proposal-bg{
+    background-attachment:scroll;
+    background-size:cover;
+    background-position:center;
+    background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), var(--gallery-bg, none);
+  }
   .gallery-hero-spacer{height:30vh;}
   .page-gallery-bg .gallery-content{margin-top:16px;padding:20px 16px 32px;border-radius:12px;}
 }

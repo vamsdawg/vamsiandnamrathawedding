@@ -3,6 +3,13 @@
 <% if (registryBg) { %>
 <style>
   body.page-registry-bg { background: url('<%= registryBg %>') center/cover fixed no-repeat; }
+  
+  /* Mobile Registry Background Fix */
+  @media (max-width: 768px) {
+    body.page-registry-bg { 
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('<%= registryBg %>') center/cover scroll no-repeat !important;
+    }
+  }
 </style>
 <% } %>
 <main class="container" style="margin:0 auto;">

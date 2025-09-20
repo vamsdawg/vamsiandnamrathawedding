@@ -1,7 +1,3 @@
-// ...existing code...
-// ...existing code...
-// ...existing code...
-// Move this route after 'const app = express()' initialization below
 import path from 'node:path'
 import fs from 'node:fs'
 import express from 'express'
@@ -18,6 +14,46 @@ dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// GCS Image Configuration Helper
+let gcsConfig = null;
+try {
+  const configPath = path.join(__dirname, '../scripts/gcs-config.json');
+  if (fs.existsSync(configPath)) {
+    gcsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log(`✅ Loaded ${gcsConfig.totalImages} images from Google Cloud Storage`);
+  }
+} catch (error) {
+  console.log('ℹ️  GCS config not found, using local images');
+}
+
+// Helper functions for image URLs
+function getGCSImages(galleryType) {
+  if (gcsConfig && gcsConfig.galleries[galleryType]) {
+    return gcsConfig.galleries[galleryType].map(img => img.url);
+  }
+  return null;
+}
+
+function getGCSBackground(imageName) {
+  if (gcsConfig && gcsConfig.galleries.backgrounds) {
+    const exact = gcsConfig.galleries.backgrounds[imageName];
+    if (exact) return exact;
+    
+    // Try partial matches
+    const lowerName = imageName.toLowerCase();
+    for (const [key, url] of Object.entries(gcsConfig.galleries.backgrounds)) {
+      if (key.toLowerCase().includes(lowerName) || lowerName.includes(key.toLowerCase())) {
+        return url;
+      }
+    }
+  }
+  return null;
+}
+
+function getGCSLogo() {
+  return gcsConfig?.galleries?.logo || '/images/gallery/Wedding%20Logo.png';
+}
 
 const app = express()
 
@@ -46,12 +82,14 @@ app.use(session({
 app.use((req, res, next) => {
   res.locals.COUPLE_NAMES = process.env.COUPLE_NAMES || 'Your Names'
   res.locals.WEDDING_DATE = process.env.WEDDING_DATE || 'Your Date'
+  res.locals.logoUrl = getGCSLogo()
   next()
 })
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('home', { title: 'Home' })
+  const heroImage = getGCSBackground('hero') || '/images/hero.jpg';
+  res.render('home', { title: 'Home', heroImage })
 })
 
 app.get('/our-story', (req, res) => {
@@ -59,59 +97,87 @@ app.get('/our-story', (req, res) => {
 })
 
 app.get('/gallery', async (req, res) => {
-  const nischitharthamDir = path.join(__dirname, '../public/images/gallery/Nischithartham Pics');
   let images = [];
   let galleryBg = null;
-  try {
-    const files = await fs.promises.readdir(nischitharthamDir);
-    images = files
-      .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
-      .filter(f => !/^gallery-bg\./i.test(f))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-      .map(name => `/images/gallery/Nischithartham Pics/${name}`);
-    // Find gallery-bg image in the same folder
-    const bgFile = files.find(f => /^gallery-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
-    if (bgFile) {
-      galleryBg = `/images/gallery/Nischithartham Pics/${bgFile}`;
+
+  // Try to get images from GCS first
+  const gcsImages = getGCSImages('nischithartham');
+  if (gcsImages && gcsImages.length > 0) {
+    images = gcsImages;
+    galleryBg = images[0]; // Use first image as background
+    console.log(`✅ Using ${images.length} images from Google Cloud Storage`);
+  } else {
+    // Fallback to local filesystem for development
+    const nischitharthamDir = path.join(__dirname, '../public/images/gallery/Nischithartham Pics');
+    try {
+      const files = await fs.promises.readdir(nischitharthamDir);
+      images = files
+        .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
+        .filter(f => !/^gallery-bg\./i.test(f))
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+        .map(name => `/images/gallery/Nischithartham Pics/${name}`);
+      
+      const bgFile = files.find(f => /^gallery-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
+      if (bgFile) {
+        galleryBg = `/images/gallery/Nischithartham Pics/${bgFile}`;
+      }
+      console.log(`ℹ️  Using ${images.length} local images (GCS not configured)`);
+    } catch (e) {
+      console.log('Local gallery directory not found');
     }
-  } catch (e) {
-    // directory may be empty or missing; ignore
+    
+    if (!galleryBg && images.length) {
+      galleryBg = images[0];
+    }
   }
-  if (!galleryBg && images.length) {
-    galleryBg = images[0];
-  }
+  
   res.render('gallery', { title: 'Nischithartham Gallery', images, bodyClass: 'page-gallery-bg', galleryBg });
 });
 
 app.get('/proposal-gallery', async (req, res) => {
-  const proposalDir = path.join(__dirname, '../public/images/gallery/Proposal Pics');
   let images = [];
   let galleryBg = null;
-  try {
-    const files = await fs.promises.readdir(proposalDir);
-    console.log('Proposal Pics files:', files);
-    images = files
-      .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
-      .filter(f => !/^proposal-bg\./i.test(f))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-      .map(name => `/images/gallery/Proposal Pics/${name}`);
-    console.log('Proposal Pics images:', images);
-    // Find proposal-bg image in the same folder
-    const bgFile = files.find(f => /^proposal-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
-    if (bgFile) {
-      galleryBg = `/images/gallery/Proposal Pics/${bgFile}`;
+
+  // Try to get images from GCS first
+  const gcsImages = getGCSImages('proposal');
+  if (gcsImages && gcsImages.length > 0) {
+    images = gcsImages;
+    galleryBg = images[0]; // Use first image as background
+    console.log(`✅ Using ${images.length} proposal images from Google Cloud Storage`);
+  } else {
+    // Fallback to local filesystem for development
+    const proposalDir = path.join(__dirname, '../public/images/gallery/Proposal Pics');
+    try {
+      const files = await fs.promises.readdir(proposalDir);
+      console.log('Proposal Pics files:', files);
+      images = files
+        .filter(f => /\.(jpe?g|png|gif|webp|avif)$/i.test(f))
+        .filter(f => !/^proposal-bg\./i.test(f))
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+        .map(name => `/images/gallery/Proposal Pics/${name}`);
+      console.log('Proposal Pics images:', images);
+      
+      const bgFile = files.find(f => /^proposal-bg\.(jpe?g|png|gif|webp|avif)$/i.test(f));
+      if (bgFile) {
+        galleryBg = `/images/gallery/Proposal Pics/${bgFile}`;
+      }
+      console.log('Proposal Pics galleryBg:', galleryBg);
+      console.log(`ℹ️  Using ${images.length} local proposal images (GCS not configured)`);
+    } catch (e) {
+      console.error('Error reading Proposal Pics:', e);
     }
-    console.log('Proposal Pics galleryBg:', galleryBg);
-  } catch (e) {
-    console.error('Error reading Proposal Pics:', e);
+    
+    if (!galleryBg && images.length) galleryBg = images[0];
   }
-  if (!galleryBg && images.length) galleryBg = images[0];
 
   res.render('proposal-gallery', { title: 'Proposal Gallery', images, bodyClass: 'page-proposal-bg', galleryBg });
 });
 
 app.get('/ceremony', (req, res) => {
-  res.render('ceremony', { title: 'Ceremony' })
+  const ceremonyBg = getGCSBackground('mandapam') || 
+                    getGCSBackground('ceremony') || 
+                    '/images/gallery/Ceremony/mandapam.jpg';
+  res.render('ceremony', { title: 'Ceremony', ceremonyBg })
 })
 
 app.use('/rsvp', rsvpRouter)

@@ -2,3 +2,9 @@ node_modules/
 .env
 mongo-data/
 .DS_Store
+
+# Google Cloud Service Account (contains private keys)
+gcs-service-account.json
+
+# Generated configuration files
+scripts/gcs-*.json

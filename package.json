@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "populate-guests": "node populate-families.js"
+    "populate-guests": "node populate-families.js",
+    "upload-images": "node scripts/upload-to-gcs.js",
+    "vercel-build": "echo 'Building for Vercel deployment - images served from GCS'"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.7.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",

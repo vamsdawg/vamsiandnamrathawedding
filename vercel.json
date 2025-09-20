@@ -1,0 +1,94 @@
+{{
+
+  "version": 2,  "version": 2,
+
+  "name": "vamsi-namratha-wedding",  "name": "vamsi-namratha-wedding",
+
+  "builds": [  "builds": [
+
+    {    {
+
+      "src": "src/server.js",      "src": "src/server.js",
+
+      "use": "@vercel/node",      "use": "@vercel/node",
+
+      "config": {      "config": {
+
+        "includeFiles": [        "includeFiles": [
+
+          "views/**",          "views/**",
+
+          "public/css/**",          "public/**",
+
+          "public/js/**",          "src/**",
+
+          "scripts/gcs-config.json"          "scripts/gcs-image-config.json"
+
+        ]        ]
+
+      }      }
+
+    }    }
+
+  ],  ],
+
+  "routes": [  "routes": [
+
+    {    {
+
+      "src": "/css/(.*)",      "src": "/css/(.*)",
+
+      "dest": "/public/css/$1"      "dest": "/public/css/$1"
+
+    },    },
+
+    {    {
+
+      "src": "/js/(.*)",      "src": "/js/(.*)",
+
+      "dest": "/public/js/$1"      "dest": "/public/js/$1"
+
+    },    },
+
+    {    {
+
+      "src": "/(.*)",      "src": "/images/(.*)",
+
+      "dest": "/src/server.js"      "dest": "/public/images/$1",
+
+    }      "headers": {
+
+  ],        "cache-control": "public, max-age=31536000"
+
+  "env": {      }
+
+    "NODE_ENV": "production"    },
+
+  },    {
+
+  "functions": {      "src": "/(.*)",
+
+    "src/server.js": {      "dest": "/src/server.js"
+
+      "maxDuration": 30    }
+
+    }  ],
+
+  },  "env": {
+
+  "regions": ["iad1"],    "NODE_ENV": "production"
+
+  "github": {  },
+
+    "silent": true  "functions": {
+
+  }    "src/server.js": {
+
+}      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1"],
+  "github": {
+    "silent": true
+  }
+}

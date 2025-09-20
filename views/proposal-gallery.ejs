@@ -11,11 +11,18 @@
       <% if (images && images.length) { %>
         <% images.forEach(function(src, idx){ %>
           <figure class="photo" style="--i:<%= idx %>">
-            <img loading="lazy" src="<%= src %>" alt="Proposal gallery image <%= idx+1 %>">
+            <img 
+              loading="lazy" 
+              src="<%= src %>" 
+              alt="Proposal gallery image <%= idx+1 %>"
+              style="transition: opacity 0.3s ease;"
+              onload="this.style.opacity='1';"
+              onerror="this.style.opacity='0.5'; console.log('Failed to load:', this.src);"
+            >
           </figure>
         <% }) %>
       <% } else { %>
-        <p>No images yet. Add some to <code>public/images/proposal</code>.</p>
+        <p>Proposal gallery images are loading... If using Google Cloud Storage, images will appear after upload.</p>
       <% } %>
     </section>
   </section>

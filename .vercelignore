@@ -13,7 +13,8 @@ node_modules/
 # Upload scripts and temporary files
 scripts/upload-to-gcs.js
 scripts/gcs-image-mapping.json
-scripts/*.json
+# Keep gcs-config.json for production image loading
+!scripts/gcs-config.json
 *.tmp
 *.temp
 

@@ -1,7 +1,7 @@
 
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
-<body style="min-height:100vh; margin:0; background: url('/images/gallery/Event Schedule/background.png') center/cover fixed no-repeat;">
+<body style="min-height:100vh; margin:0; background: url('<%= eventBg %>') center/cover fixed no-repeat;">
   <main class="container" style="margin-top: 40px;">
     <div style="height: 70vh;"></div>
     
@@ -116,6 +116,6 @@
   </script>
   
   <!-- Load Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADSZ9lbX4v-oesOpC_dqk_7aWPQhHUrq0&callback=initMaps"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= mapsApiKey %>&callback=initMaps"></script>
   <%- include('partials/footer') %>
 </body>

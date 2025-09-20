@@ -1,11 +1,45 @@
 import { Router } from 'express'
 import Rsvp from '../models/Rsvp.js'
 import Guest from '../models/Family.js' // Using the updated Guest model
+import path from 'node:path'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Load GCS config for background images
+let gcsConfig = null;
+try {
+  const configPath = path.join(__dirname, '../../scripts/gcs-config.json');
+  if (fs.existsSync(configPath)) {
+    gcsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  }
+} catch (error) {
+  console.log('ℹ️  GCS config not found in RSVP router');
+}
+
+function getGCSBackground(imageName) {
+  if (gcsConfig && gcsConfig.galleries.backgrounds) {
+    const exact = gcsConfig.galleries.backgrounds[imageName];
+    if (exact) return exact;
+    
+    // Try partial matches in backgrounds
+    const lowerName = imageName.toLowerCase();
+    for (const [key, url] of Object.entries(gcsConfig.galleries.backgrounds)) {
+      if (key.toLowerCase().includes(lowerName) || lowerName.includes(key.toLowerCase())) {
+        return url;
+      }
+    }
+  }
+  return null;
+}
 
 const router = Router()
 
 router.get('/', async (req, res) => {
-  res.render('rsvp', { title: 'RSVP', values: {} })
+  const rsvpBg = getGCSBackground('rsvp background') || '/images/gallery/RSVP Image/RSVP Background.png';
+  res.render('rsvp', { title: 'RSVP', values: {}, rsvpBg })
 })
 
 // Search guests endpoint
@@ -78,10 +112,12 @@ router.post('/', async (req, res) => {
       })
       
       if (existingRsvp) {
+        const rsvpBg = getGCSBackground('rsvp background') || '/images/gallery/RSVP Image/RSVP Background.png';
         return res.status(400).render('rsvp', { 
           title: 'RSVP', 
           error: 'An RSVP with this name or email already exists. Please contact us if you need to make changes.', 
-          values: req.body 
+          values: req.body,
+          rsvpBg
         })
       }
       
@@ -90,10 +126,12 @@ router.post('/', async (req, res) => {
     }
   } catch (err) {
     console.error('Error saving RSVP', err)
+    const rsvpBg = getGCSBackground('rsvp background') || '/images/gallery/RSVP Image/RSVP Background.png';
     res.status(400).render('rsvp', { 
       title: 'RSVP', 
       error: 'Please check your input and try again.', 
-      values: req.body 
+      values: req.body,
+      rsvpBg
     })
   }
 })

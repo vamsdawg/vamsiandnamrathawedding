@@ -40,7 +40,7 @@ function getGCSBackground(imageName) {
     const exact = gcsConfig.galleries.backgrounds[imageName];
     if (exact) return exact;
     
-    // Try partial matches
+    // Try partial matches in backgrounds
     const lowerName = imageName.toLowerCase();
     for (const [key, url] of Object.entries(gcsConfig.galleries.backgrounds)) {
       if (key.toLowerCase().includes(lowerName) || lowerName.includes(key.toLowerCase())) {
@@ -48,6 +48,18 @@ function getGCSBackground(imageName) {
       }
     }
   }
+  
+  // Also search in allImages for additional background images like mandapam
+  if (gcsConfig && gcsConfig.allImages) {
+    const lowerName = imageName.toLowerCase();
+    for (const [path, imageInfo] of Object.entries(gcsConfig.allImages)) {
+      const fileName = imageInfo.fileName.toLowerCase();
+      if (fileName.includes(lowerName) || lowerName.includes(fileName.replace(/\.[^/.]+$/, ""))) {
+        return imageInfo.url;
+      }
+    }
+  }
+  
   return null;
 }
 
@@ -184,43 +196,25 @@ app.use('/rsvp', rsvpRouter)
 app.use('/', adminRouter)
 
 app.get('/registry', (req, res) => {
-  // Look for a background image in gallery/Registry with supported naming patterns
-  (async () => {
-    const regDir = path.join(__dirname, '../public/images/gallery/Registry')
-    let registryBg = null
-    try {
-      const files = await fs.promises.readdir(regDir)
-      const bgFile = files.find(f => /^(registry[- _]?bg|registry[- _]?background|registrybackground|registry[- _]?bg[- _]?image)\.(jpe?g|png|gif|webp|avif)$/i.test(f))
-      if (bgFile) registryBg = `/images/gallery/Registry/${bgFile}`
-    } catch (e) {
-      // ignore if folder empty
-    }
-    const bodyClass = registryBg ? 'page-registry-bg' : ''
-    res.render('registry', { title: 'Registry', bodyClass, registryBg })
-  })()
-})
+  const registryBg = getGCSBackground('registry') || getGCSBackground('registrybackground');
+  const bodyClass = registryBg ? 'page-registry-bg' : '';
+  res.render('registry', { title: 'Registry', bodyClass, registryBg });
+});
 // Event Schedule page
 app.get('/event-schedule', (req, res) => {
-  res.render('event-schedule', { title: 'Event Schedule' });
+  const eventBg = getGCSBackground('background') || '/images/gallery/Event Schedule/background.png';
+  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyADSZ9lbX4v-oesOpC_dqk_7aWPQhHUrq0';
+  res.render('event-schedule', { title: 'Event Schedule', eventBg, mapsApiKey });
 });
 
-// FAQ page with optional background image (drop an image named faq-bg.* into /public/images/gallery/FAQ)
-app.get('/faq', async (req, res) => {
-  const faqDir = path.join(__dirname, '../public/images/gallery/FAQ')
-  let faqBg = null
-  try {
-    const files = await fs.promises.readdir(faqDir)
-    // Accept several naming patterns: faq-bg.*, faq background.*, faqbackground.*, faq-bg-image.*
-    const bgFile = files.find(f => /^(faq[- _]?bg|faq[- _]?background|faqbackground|faq[- _]?bg[- _]?image)\.(jpe?g|png|gif|webp|avif)$/i.test(f))
-    if (bgFile) {
-      faqBg = `/images/gallery/FAQ/${bgFile}`
-    }
-  } catch (e) {
-    // directory may be empty; ignore
-  }
-  const bodyClass = faqBg ? 'page-faq-bg' : ''
-  res.render('faq', { title: 'FAQ', bodyClass, faqBg })
-})
+// FAQ page with background image from GCS
+app.get('/faq', (req, res) => {
+  const faqBg = getGCSBackground('faq') || 
+               getGCSBackground('faqbackground') ||
+               getGCSBackground('faq background');
+  const bodyClass = faqBg ? 'page-faq-bg' : '';
+  res.render('faq', { title: 'FAQ', bodyClass, faqBg });
+});
 
 // 404
 app.use((req, res) => {

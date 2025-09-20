@@ -103,6 +103,70 @@
   .submit-btn:hover {
     background: #c19b4d;
   }
+  
+  /* Mobile RSVP Responsive Styles */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll !important;
+      background-position: center center !important;
+    }
+    
+    .rsvp-background {
+      padding: 1rem;
+      padding-top: 2rem;
+      align-items: flex-start;
+    }
+    
+    .rsvp-container {
+      padding: 1.5rem;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: none;
+      border-radius: 12px;
+    }
+    
+    .rsvp-container h1 {
+      font-size: 2rem !important;
+      margin-bottom: 1.5rem !important;
+    }
+    
+    .search-container input,
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-size: 16px !important; /* Prevents zoom on iOS */
+      padding: 12px !important;
+    }
+    
+    .search-results {
+      max-height: 200px !important;
+    }
+    
+    .submit-btn {
+      padding: 14px 20px !important;
+      font-size: 16px !important;
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .rsvp-container {
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    
+    .rsvp-container h1 {
+      font-size: 1.8rem !important;
+    }
+    
+    .search-container input,
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px !important;
+    }
+  }
 </style>
 
 <div class="rsvp-background">

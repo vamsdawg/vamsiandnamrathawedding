@@ -62,9 +62,44 @@
       .gallery{grid-template-columns: repeat(2, 1fr)}
       .photo:nth-child(3n){grid-column: span 2}
     }
+    /* Mobile Gallery Adjustments */
+    @media (max-width: 799px) {
+      .gallery{
+        grid-template-columns: 1fr;
+        gap:20px;
+        margin-top:16px;
+      }
+      .photo{
+        margin:0 auto;
+        max-width:100%;
+        box-shadow:0 8px 25px rgba(0,0,0,.3);
+      }
+      .photo img{
+        border-radius:12px;
+      }
+    }
+    @media (max-width: 480px) {
+      .gallery{gap:16px;}
+      .photo img{border-radius:8px;}
+    }
     /* background hook when galleryBg is provided */
   .page-gallery-bg{min-height:100vh;}
   .page-gallery-bg{background: #000 var(--gallery-bg, none) center/cover fixed no-repeat;}
+  
+  /* Mobile gallery content adjustments */
+  @media (max-width: 768px) {
+    .gallery-content{
+      padding:16px 12px 32px;
+      margin-top:12px;
+    }
+    .gallery-content h2{
+      font-size:clamp(1.8rem,6vw,2.4rem) !important;
+      margin-bottom:8px !important;
+    }
+    .gallery-content > div[style*="font-size:1.4em"]{
+      font-size:1.1rem !important;
+    }
+  }
   </style>
 </main>
 <%- include('partials/footer') %>

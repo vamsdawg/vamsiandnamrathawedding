@@ -1,17 +1,35 @@
 <header class="nav-wrap">
   <nav class="nav">
     <a class="brand" href="/">HOME</a>
-    <ul>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">☰</button>
+    <ul id="nav-menu">
       <li><a href="/event-schedule">EVENT SCHEDULE</a></li>
       <li><a href="/rsvp">RSVP</a></li>
       <li><a href="/ceremony">CEREMONY</a></li>
       <li><a href="/gallery">NISCHITHARTHAM GALLERY</a></li>
       <li><a href="/proposal-gallery">PROPOSAL GALLERY</a></li>
-  <li><a href="/faq">FAQ</a></li>
+      <li><a href="/faq">FAQ</a></li>
       <li><a href="/registry">REGISTRY</a></li>
     </ul>
   </nav>
 </header>
+
+<script>
+function toggleNav() {
+  const navMenu = document.getElementById('nav-menu');
+  navMenu.classList.toggle('nav-open');
+}
+
+// Close nav when clicking on a link (mobile)
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('.nav ul a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      document.getElementById('nav-menu').classList.remove('nav-open');
+    });
+  });
+});
+</script>
 
 <!-- FLOATING WEDDING LOGO (Option 2 overlay, non-interactive). Remove this block to revert. -->
 <div class="floating-logo" aria-hidden="true">

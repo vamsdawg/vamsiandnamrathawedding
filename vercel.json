@@ -1,51 +1,31 @@
 {
   "version": 2,
   "name": "vamsi-namratha-wedding",
-  "builds": [
+  "rewrites": [
     {
-      "src": "src/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "views/**",
-          "public/**",
-          "src/**",
-          "scripts/gcs-config.json"
-        ]
-      }
+      "source": "/css/(.*)",
+      "destination": "/public/css/$1"
+    },
+    {
+      "source": "/js/(.*)",
+      "destination": "/public/js/$1"
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": "/public/images/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/src/server.js"
     }
   ],
-  "routes": [
-    {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/public/images/$1",
-      "headers": {
-        "cache-control": "public, max-age=31536000"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/src/server.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
   "functions": {
     "src/server.js": {
       "maxDuration": 30
     }
   },
-  "regions": ["iad1"],
-  "github": {
-    "silent": true
-  }
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "regions": ["iad1"]
 }

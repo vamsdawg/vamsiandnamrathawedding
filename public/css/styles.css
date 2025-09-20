@@ -163,23 +163,20 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 }
 .page-registry-bg{min-height:100vh;}
 
-/* Mobile Background - Use actual background images with scroll attachment */
+/* Mobile Background - Clean Dark Theme */
 @media (max-width: 768px) {
-  /* All page backgrounds - use scroll attachment instead of fixed */
+  /* All non-home pages get dark background */
   .page-gallery-bg,
   .page-faq-bg,
   .page-registry-bg,
   .page-proposal-bg,
   body.ceremony-page,
   body.event-schedule-page,
-  body.rsvp-page,
   body.our-story-page {
-    background-attachment: scroll !important;
-    background-size: cover !important;
-    background-position: center !important;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
   }
   
-  .gallery-hero-spacer{height:30vh;}
+  .gallery-hero-spacer{height:10vh;}
   .page-gallery-bg .gallery-content{margin-top:16px;padding:20px 16px 32px;border-radius:12px;}
 }
 .faq-container{max-width:850px}
@@ -207,7 +204,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
   .floating-logo img{width:70px}
 }
 @media (max-width:768px){
-  .floating-logo{top:60px;right:8px;z-index:5;} /* Moved below nav and reduced z-index */
+  .floating-logo{top:10px;left:50%;transform:translateX(-50%);right:auto;z-index:5;} /* Centered at top */
   .floating-logo img{width:50px}
 }
 @media (max-width:520px){

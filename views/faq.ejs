@@ -2,12 +2,21 @@
 <%- include('partials/nav') %>
 <% if (faqBg) { %>
 <style>
-  body.page-faq-bg { background: url('<%= faqBg %>') center/cover fixed no-repeat; }
+  body.page-faq-bg { 
+    background-image: url('<%= faqBg %>'); 
+    background-size: cover; 
+    background-position: center 30%; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    font-family: 'Poppins', sans-serif;
+  }
   
   /* Mobile FAQ Background Fix */
   @media (max-width: 768px) {
     body.page-faq-bg { 
-      background: url('<%= faqBg %>') center/cover scroll no-repeat !important;
+      background-attachment: scroll !important;
+      background-position: center !important;
+      background-size: cover !important;
     }
   }
 </style>

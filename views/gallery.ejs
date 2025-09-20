@@ -84,10 +84,22 @@
     }
     /* background hook when galleryBg is provided */
   .page-gallery-bg{min-height:100vh;}
-  .page-gallery-bg{background: #000 var(--gallery-bg, none) center/cover fixed no-repeat;}
+  .page-gallery-bg{
+    background-image: var(--gallery-bg, none); 
+    background-size: cover; 
+    background-position: center 30%; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    font-family: 'Poppins', sans-serif;
+  }
   
   /* Mobile gallery content adjustments */
   @media (max-width: 768px) {
+    .page-gallery-bg {
+      background-attachment: scroll !important;
+      background-position: center !important;
+      background-size: cover !important;
+    }
     .gallery-content{
       padding:16px 12px 32px;
       margin-top:12px;

@@ -66,13 +66,26 @@
       .photo img{border-radius:8px;}
     }
 
-    .page-proposal-bg{min-height:100vh;background:#000 var(--gallery-bg, none) center/cover fixed no-repeat}
+    .page-proposal-bg{
+      min-height:100vh;
+      background-image: var(--gallery-bg, none); 
+      background-size: cover; 
+      background-position: center 30%; 
+      background-repeat: no-repeat; 
+      background-attachment: fixed; 
+      font-family: 'Poppins', sans-serif;
+    }
     .gallery-title,.gallery{opacity:1;transform:none;transition:opacity .6s ease,transform .6s ease}
     .gallery-content{background:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.85));border-radius:18px;padding:24px 24px 48px;margin-top:24px}
     .page-proposal-bg h1{color:#fff}
     
     /* Mobile proposal content adjustments */
     @media (max-width: 768px) {
+      .page-proposal-bg {
+        background-attachment: scroll !important;
+        background-position: center !important;
+        background-size: cover !important;
+      }
       .gallery-content{
         padding:16px 12px 32px;
         margin-top:12px;

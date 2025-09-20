@@ -1,11 +1,13 @@
 <%- include('partials/head') %>
 <%- include('partials/nav') %>
-<body style="min-height:100vh; margin:0; background: url('<%= ceremonyBg %>') center/cover fixed no-repeat;">
+<body style="min-height:100vh; margin:0; background-image: url('<%= ceremonyBg %>'); background-size: cover; background-position: center 30%; background-repeat: no-repeat; background-attachment: fixed; font-family: 'Poppins', sans-serif;">
 <style>
   /* Mobile Ceremony Background Fix */
   @media (max-width: 768px) {
     body {
-      background: url('<%= ceremonyBg %>') center/cover scroll no-repeat !important;
+      background-attachment: scroll !important;
+      background-position: center !important;
+      background-size: cover !important;
     }
   }
 </style>

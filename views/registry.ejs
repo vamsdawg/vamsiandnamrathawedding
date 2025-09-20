@@ -2,12 +2,21 @@
 <%- include('partials/nav') %>
 <% if (registryBg) { %>
 <style>
-  body.page-registry-bg { background: url('<%= registryBg %>') center/cover fixed no-repeat; }
+  body.page-registry-bg { 
+    background-image: url('<%= registryBg %>'); 
+    background-size: cover; 
+    background-position: center 30%; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    font-family: 'Poppins', sans-serif;
+  }
   
   /* Mobile Registry Background Fix */
   @media (max-width: 768px) {
     body.page-registry-bg { 
-      background: url('<%= registryBg %>') center/cover scroll no-repeat !important;
+      background-attachment: scroll !important;
+      background-position: center !important;
+      background-size: cover !important;
     }
   }
 </style>

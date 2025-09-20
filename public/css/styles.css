@@ -18,6 +18,9 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 /* Mobile Navigation */
 .nav-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:8px;}
 
+/* Hide close button on desktop */
+.nav-close-wrapper{display:none;}
+
 @media (max-width: 768px) {
   .nav{padding:12px 16px;}
   .nav-toggle{display:block;}
@@ -55,12 +58,13 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
     color:var(--accent);
   }
   
-  /* Close button styles */
+  /* Close button styles - Mobile only */
   .nav-close-wrapper{
     position:absolute;
     top:20px;
     right:20px;
     width:auto !important;
+    display:block; /* Only visible on mobile */
   }
   .nav-close{
     background:none;
@@ -159,35 +163,21 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 }
 .page-registry-bg{min-height:100vh;}
 
-/* Mobile Background - Clean Dark Theme (Option A) */
+/* Mobile Background - Use actual background images with scroll attachment */
 @media (max-width: 768px) {
-  /* Replace all background images with elegant dark gradients */
-  .page-gallery-bg{
-    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+  /* All page backgrounds - use scroll attachment instead of fixed */
+  .page-gallery-bg,
+  .page-faq-bg,
+  .page-registry-bg,
+  .page-proposal-bg,
+  body.ceremony-page,
+  body.event-schedule-page,
+  body.rsvp-page,
+  body.our-story-page {
+    background-attachment: scroll !important;
+    background-size: cover !important;
+    background-position: center !important;
   }
-  .page-faq-bg{
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%) !important;
-  }
-  .page-registry-bg{
-    background: linear-gradient(135deg, #121212 0%, #0d0d0d 100%) !important;
-  }
-  .page-proposal-bg{
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
-  }
-  /* Page-specific body backgrounds (excluding home page) */
-  body.ceremony-page{
-    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
-  }
-  body.event-schedule-page{
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%) !important;
-  }
-  body.rsvp-page{
-    background: linear-gradient(135deg, #121212 0%, #0d0d0d 100%) !important;
-  }
-  body.our-story-page{
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
-  }
-  /* Note: home page background preserved - uses .hero background-image */
   
   .gallery-hero-spacer{height:30vh;}
   .page-gallery-bg .gallery-content{margin-top:16px;padding:20px 16px 32px;border-radius:12px;}

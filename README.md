@@ -60,3 +60,4 @@ Place any number of images inside `public/images/gallery/` (jpg, jpeg, png, gif,
 - To view RSVPs in MongoDB shell: connect to the DB and inspect the `rsvps` collection.
 >>>>>>> 640928f (Initial Wesbite Design)
 # Trigger redeploy Sat Sep 20 15:30:50 EDT 2025
+# Trigger deployment - Sat Sep 20 16:38:53 EDT 2025

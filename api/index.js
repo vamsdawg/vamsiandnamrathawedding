@@ -186,9 +186,9 @@ app.get('/proposal-gallery', async (req, res) => {
 });
 
 app.get('/ceremony', (req, res) => {
-  const ceremonyBg = getGCSBackground('mandapam') || 
-                    getGCSBackground('ceremony') || 
-                    '/images/gallery/Ceremony/mandapam.jpg';
+  const ceremonyBg = getGCSBackground('registry') || 
+                    getGCSBackground('registrybackground') || 
+                    '/images/gallery/Registry/registrybackground.jpg';
   res.render('ceremony', { title: 'Ceremony', ceremonyBg })
 })
 
@@ -196,7 +196,7 @@ app.use('/rsvp', rsvpRouter)
 app.use('/', adminRouter)
 
 app.get('/registry', (req, res) => {
-  const registryBg = getGCSBackground('registry') || getGCSBackground('registrybackground');
+  const registryBg = getGCSBackground('mandapam') || getGCSBackground('ceremony');
   const bodyClass = registryBg ? 'page-registry-bg' : '';
   res.render('registry', { title: 'Registry', bodyClass, registryBg });
 });

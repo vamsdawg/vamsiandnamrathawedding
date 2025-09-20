@@ -16,14 +16,9 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/src/server.js"
+      "destination": "/api/index"
     }
   ],
-  "functions": {
-    "src/server.js": {
-      "maxDuration": 30
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   },

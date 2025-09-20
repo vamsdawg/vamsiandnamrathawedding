@@ -3,6 +3,7 @@
     <a class="brand" href="/">HOME</a>
     <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">☰</button>
     <ul id="nav-menu">
+      <li class="nav-close-wrapper"><button class="nav-close" onclick="closeNav()" aria-label="Close navigation">×</button></li>
       <li><a href="/event-schedule">EVENT SCHEDULE</a></li>
       <li><a href="/rsvp">RSVP</a></li>
       <li><a href="/ceremony">CEREMONY</a></li>
@@ -20,6 +21,11 @@ function toggleNav() {
   navMenu.classList.toggle('nav-open');
 }
 
+function closeNav() {
+  const navMenu = document.getElementById('nav-menu');
+  navMenu.classList.remove('nav-open');
+}
+
 // Close nav when clicking on a link (mobile)
 document.addEventListener('DOMContentLoaded', function() {
   const navLinks = document.querySelectorAll('.nav ul a');
@@ -27,6 +33,18 @@ document.addEventListener('DOMContentLoaded', function() {
     link.addEventListener('click', () => {
       document.getElementById('nav-menu').classList.remove('nav-open');
     });
+  });
+  
+  // Close nav when clicking outside (mobile)
+  document.addEventListener('click', function(event) {
+    const navMenu = document.getElementById('nav-menu');
+    const navToggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('.nav');
+    
+    // If click is outside nav and menu is open, close it
+    if (!nav.contains(event.target) && navMenu.classList.contains('nav-open')) {
+      navMenu.classList.remove('nav-open');
+    }
   });
 });
 </script>

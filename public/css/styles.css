@@ -50,8 +50,33 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
     text-decoration:none;
     transition:background 0.2s ease;
   }
-  .nav ul li a:hover{background:rgba(255,255,255,0.1);}
-  .nav .brand{font-size:12px;}
+  .nav ul li a:hover{
+    background:rgba(255,255,255,0.1);
+    color:var(--accent);
+  }
+  
+  /* Close button styles */
+  .nav-close-wrapper{
+    position:absolute;
+    top:20px;
+    right:20px;
+    width:auto !important;
+  }
+  .nav-close{
+    background:none;
+    border:none;
+    color:var(--text);
+    font-size:2rem;
+    cursor:pointer;
+    padding:8px;
+    line-height:1;
+    opacity:0.8;
+    transition:opacity 0.2s ease;
+  }
+  .nav-close:hover{
+    opacity:1;
+    color:var(--accent);
+  }
 }
 
 /* Hero */
@@ -134,31 +159,36 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Plus Jakarta S
 }
 .page-registry-bg{min-height:100vh;}
 
-/* Mobile Background Image Fixes */
+/* Mobile Background - Clean Dark Theme (Option A) */
 @media (max-width: 768px) {
+  /* Replace all background images with elegant dark gradients */
   .page-gallery-bg{
-    background-attachment:scroll;
-    background-size:cover;
-    background-position:center;
-    background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), var(--gallery-bg, none);
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
   }
   .page-faq-bg{
-    background-attachment:scroll;
-    background-size:cover;
-    background-position:center;
-    background-image:linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('/images/gallery/FAQ/faqbackground.png');
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%) !important;
   }
   .page-registry-bg{
-    background-attachment:scroll;
-    background-size:cover;
-    background-position:center;
+    background: linear-gradient(135deg, #121212 0%, #0d0d0d 100%) !important;
   }
   .page-proposal-bg{
-    background-attachment:scroll;
-    background-size:cover;
-    background-position:center;
-    background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), var(--gallery-bg, none);
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
   }
+  /* Page-specific body backgrounds (excluding home page) */
+  body.ceremony-page{
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+  }
+  body.event-schedule-page{
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%) !important;
+  }
+  body.rsvp-page{
+    background: linear-gradient(135deg, #121212 0%, #0d0d0d 100%) !important;
+  }
+  body.our-story-page{
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%) !important;
+  }
+  /* Note: home page background preserved - uses .hero background-image */
+  
   .gallery-hero-spacer{height:30vh;}
   .page-gallery-bg .gallery-content{margin-top:16px;padding:20px 16px 32px;border-radius:12px;}
 }

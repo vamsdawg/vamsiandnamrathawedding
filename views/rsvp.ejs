@@ -110,21 +110,25 @@
       background-attachment: scroll !important;
       background-position: center !important;
       background-size: cover !important;
-      background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('<%= rsvpBg %>') !important;
     }
     
     .rsvp-background {
       padding: 1rem;
       padding-top: 2rem;
-      align-items: flex-start;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
     
     .rsvp-container {
       padding: 1.5rem;
-      margin-top: 1rem;
+      margin: 0 auto;
       width: 100%;
-      max-width: none;
+      max-width: 400px;
       border-radius: 12px;
+      position: relative;
+      top: -2rem; /* Adjust to center better with nav */
     }
     
     .rsvp-container h1 {
@@ -153,9 +157,16 @@
   }
   
   @media (max-width: 480px) {
+    .rsvp-background {
+      padding: 0.5rem;
+      padding-top: 1.5rem;
+    }
+    
     .rsvp-container {
       padding: 1rem;
       border-radius: 8px;
+      max-width: 350px;
+      top: -1rem;
     }
     
     .rsvp-container h1 {

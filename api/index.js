@@ -7,8 +7,8 @@ import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { fileURLToPath } from 'node:url'
 
-import rsvpRouter from './tabs/rsvp.js'
-import adminRouter from './tabs/admin.js'
+import rsvpRouter from '../src/tabs/rsvp.js'
+import adminRouter from '../src/tabs/admin.js'
 
 dotenv.config()
 

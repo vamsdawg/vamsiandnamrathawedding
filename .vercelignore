@@ -1,32 +1,18 @@
-# Exclude large image directories from Vercel deployment# Exclude large image directories from Vercel deployment
+# Exclude large image directories from Vercel deployment
+# These will be served from Google Cloud Storage instead
+public/images/gallery/
 
-# Images will be served from Google Cloud Storage instead# These will be served from Google Cloud Storage instead
-
-public/images/gallery/public/images/gallery/
-
-
-
-# Development files# Exclude development files
-
-.env.env.local
-
-.env.local*.log
-
-*.log.DS_Store
-
-.DS_Storenode_modules
-
-node_modules/.vscode
-
+# Exclude development files
+.env
+.env.local
+*.log
+.DS_Store
+node_modules/
 .vscode/
 
-# Exclude upload scripts and temp files
-
-# Upload scripts and temporary filesscripts/upload-images-to-gcs.js
-
-scripts/upload-to-gcs.jsscripts/image-url-mapping.json
-
-scripts/gcs-image-mapping.json*.tmp
+# Upload scripts and temporary files
+scripts/upload-to-gcs.js
+scripts/gcs-image-mapping.json
 scripts/*.json
 *.tmp
 *.temp

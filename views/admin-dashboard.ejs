@@ -13,12 +13,160 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    z-index: 100;
+  }
+  
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .guest-list-toggle {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .guest-list-toggle:hover {
+    background: rgba(255,255,255,0.3);
+  }
+  
+  /* Guest List Sidebar */
+  .guest-list-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  
+  .guest-list-sidebar.active {
+    right: 0;
+  }
+  
+  .sidebar-header {
+    background: #d9b166;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .sidebar-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+  
+  .guest-list-content {
+    padding: 1rem;
+  }
+  
+  .guest-list-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .guest-stat {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    background: #f8f9fa;
+  }
+  
+  .guest-search {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .guest-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .guest-item:last-child {
+    border-bottom: none;
+  }
+  
+  .guest-name {
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .guest-status {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  
+  .status-rsvped {
+    color: #28a745;
+    background: #d4edda;
+  }
+  
+  .status-not-rsvped {
+    color: #dc3545;
+    background: #f8d7da;
+  }
+  
+  .status-no-response {
+    color: #6c757d;
+    background: #e9ecef;
+  }
+  
+  /* Overlay for mobile */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
   }
   
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    transition: margin-right 0.3s ease;
   }
   
   .stats-grid {
@@ -110,13 +258,121 @@
     font-style: italic;
     padding: 2rem;
   }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .header {
+      padding: 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.2rem;
+    }
+    
+    .guest-list-toggle {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .guest-list-sidebar {
+      width: 100%;
+      right: -100%;
+    }
+    
+    .container {
+      padding: 1rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .stat-card {
+      padding: 1rem;
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+    }
+    
+    .section-content {
+      padding: 1rem;
+    }
+    
+    .rsvp-details {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header-controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .guest-list-toggle {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 </style>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Guest List Sidebar -->
+<div class="guest-list-sidebar" id="guestListSidebar">
+  <div class="sidebar-header">
+    <h3 style="margin: 0;">Complete Guest List</h3>
+    <button class="sidebar-close" id="closeSidebar">&times;</button>
+  </div>
+  <div class="guest-list-content">
+    <div class="guest-list-stats">
+      <div class="guest-stat">
+        <div style="font-weight: bold; color: #28a745;"><%= guestRsvps.length %></div>
+        <div>RSVP'd</div>
+      </div>
+      <div class="guest-stat">
+        <div style="font-weight: bold; color: #dc3545;"><%= allGuests.filter(g => !g.rsvpSubmitted).length %></div>
+        <div>No RSVP</div>
+      </div>
+      <div class="guest-stat">
+        <div style="font-weight: bold; color: #6c757d;"><%= totalGuests %></div>
+        <div>Total</div>
+      </div>
+    </div>
+    
+    <input type="text" class="guest-search" id="guestSearch" placeholder="Search guests..." />
+    
+    <div class="guest-list" id="guestList">
+      <% allGuests.forEach(guest => { %>
+        <div class="guest-item" data-name="<%= guest.name.toLowerCase() %>">
+          <div class="guest-name"><%= guest.name %></div>
+          <div class="guest-status <%= guest.rsvpSubmitted ? 'status-rsvped' : 'status-not-rsvped' %>">
+            <%= guest.rsvpSubmitted ? 'RSVP\'d' : 'No RSVP' %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
 
 <div class="header">
   <h1 style="margin: 0;">Wedding RSVP Dashboard</h1>
-  <form method="POST" action="/admin/logout" style="margin: 0;">
-    <button type="submit" class="logout-btn">Logout</button>
-  </form>
+  <div class="header-controls">
+    <button class="guest-list-toggle" id="guestListToggle">
+      <span>👥 Guest List</span>
+    </button>
+    <form method="POST" action="/admin/logout" style="margin: 0;">
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </div>
 </div>
 
 <div class="container">
@@ -207,6 +463,73 @@
     </div>
   <% } %>
 </div>
+
+<script>
+// Guest List Sidebar Functionality
+const guestListToggle = document.getElementById('guestListToggle');
+const guestListSidebar = document.getElementById('guestListSidebar');
+const closeSidebar = document.getElementById('closeSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const guestSearch = document.getElementById('guestSearch');
+
+// Toggle sidebar
+guestListToggle.addEventListener('click', () => {
+  guestListSidebar.classList.add('active');
+  sidebarOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden'; // Prevent background scroll
+});
+
+// Close sidebar
+function closeSidebarFunc() {
+  guestListSidebar.classList.remove('active');
+  sidebarOverlay.classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+closeSidebar.addEventListener('click', closeSidebarFunc);
+sidebarOverlay.addEventListener('click', closeSidebarFunc);
+
+// Search functionality
+guestSearch.addEventListener('input', (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  const guestItems = document.querySelectorAll('.guest-item');
+  
+  guestItems.forEach(item => {
+    const guestName = item.getAttribute('data-name');
+    if (guestName.includes(searchTerm)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // ESC to close sidebar
+  if (e.key === 'Escape' && guestListSidebar.classList.contains('active')) {
+    closeSidebarFunc();
+  }
+  
+  // G to open guest list (when no input is focused)
+  if (e.key === 'g' && !e.target.matches('input, textarea')) {
+    guestListToggle.click();
+  }
+});
+
+// Auto-focus search when sidebar opens
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.target.classList.contains('active')) {
+      setTimeout(() => {
+        guestSearch.focus();
+      }, 300); // Wait for animation to complete
+    }
+  });
+});
+
+observer.observe(guestListSidebar, { attributes: true, attributeFilter: ['class'] });
+</script>
 
 </body>
 </html>

@@ -42,6 +42,9 @@ router.get('/admin/dashboard', async (req, res) => {
     // Get all fallback RSVPs
     const fallbackRsvps = await Rsvp.find({}).sort({ name: 1 })
     
+    // Get ALL guests for the guest list (both RSVP'd and not)
+    const allGuests = await Guest.find({}).sort({ name: 1 })
+    
     // Calculate statistics
     const totalAttending = guestRsvps.reduce((sum, guest) => sum + (guest.adultsAttending || 0), 0)
     const weddingAttendees = guestRsvps.filter(guest => guest.attendingWedding).length
@@ -51,6 +54,8 @@ router.get('/admin/dashboard', async (req, res) => {
     res.render('admin-dashboard', { 
       guestRsvps, 
       fallbackRsvps,
+      allGuests,
+      totalGuests: allGuests.length,
       totalAttending,
       weddingAttendees,
       receptionAttendees,

@@ -8,6 +8,8 @@
     "start": "node src/server.js",
     "populate-guests": "node populate-families.js",
     "upload-images": "node scripts/upload-to-gcs.js",
+    "delete-images": "node scripts/delete-gcs-images.js",
+    "optimize-images": "node scripts/optimize-and-upload.js",
     "vercel-build": "echo 'Building for Vercel deployment - images served from GCS'"
   },
   "dependencies": {
@@ -18,7 +20,8 @@
     "express": "^4.19.2",
     "express-session": "^1.18.2",
     "mongoose": "^8.6.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

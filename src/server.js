@@ -12,6 +12,32 @@ import adminRouter from './tabs/admin.js'
 
 dotenv.config()
 
+// Mongoose connection caching for serverless (Vercel)
+let cachedConnection = null
+
+async function connectDB() {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    console.log('✅ Using cached MongoDB connection')
+    return cachedConnection
+  }
+
+  const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site'
+  
+  try {
+    cachedConnection = await mongoose.connect(mongo, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+    })
+    console.log('✅ New MongoDB connection established')
+    return cachedConnection
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error)
+    throw error
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -77,6 +103,17 @@ app.set('view engine', 'ejs')
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
+// Ensure DB connection on each request (for Vercel serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB()
+    next()
+  } catch (error) {
+    console.error('DB connection error:', error)
+    res.status(503).json({ error: 'Database connection failed. Please try again.' })
+  }
+})
 app.use(express.static(path.join(__dirname, '../public')))
 
 // Session middleware for admin authentication
@@ -223,8 +260,7 @@ app.use((req, res) => {
 
 // Start server after DB connects
 async function start () {
-  const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site'
-  await mongoose.connect(mongo)
+  await connectDB()
   const port = process.env.PORT || 3000
   app.listen(port, () => console.log(`Wedding site on http://localhost:${port}`))
 }

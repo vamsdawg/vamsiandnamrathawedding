@@ -57,7 +57,8 @@ router.get('/search-guests', async (req, res) => {
     const results = guests.map(guest => ({
       guestId: guest._id,
       name: guest.name,
-      rsvpSubmitted: guest.rsvpSubmitted
+      rsvpSubmitted: guest.rsvpSubmitted,
+      invitedCount: guest.invitedCount || 0
     }))
     
     res.json(results)

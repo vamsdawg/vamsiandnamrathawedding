@@ -5,81 +5,36 @@ import mongoose from 'mongoose'
 import Guest from './src/models/Family.js' // Using updated Guest model
 import dotenv from 'dotenv'
 import fs from 'fs'
+import csv from 'csv-parser'
 
 dotenv.config()
 
-const sampleGuests = [
-  { name: "Yedhara Family (Sridhar)" },
-  { name: "Dasaraju Family" },
-  { name: "Chintalacharuvu Family (Koti)" },
-  { name: "Chintalacharuvu Family (Subbarao)" },
-  { name: "Nukkala Family" },
-  { name: "Vegesna Family (Siva)" },
-  { name: "Vegesna Family (Harinatharaju)" },
-  { name: "Kalidindi Family (Murali)" },
-  { name: "Kalidindi (Durga)" },
-  { name: "Chanderraju Family (Chenchuraju)" },
-  { name: "Sagi Family (Srinivas)" },
-  { name: "Sagi Family (Chakri)" },
-  { name: "Sagi Family (Rangaraju)" },
-  { name: "Sagi Family (Neeladhri raju )" },
-  { name: "Chanderraju Family (Varma)" },
-  { name: "Dintakurti Family" },
-  { name: "Yedhara Family (Raju)" },
-  { name: "Unnithan Family" },
-  { name: "Verma Family" },
-  { name: "Penmetsa Family (Rajesh)" },
-  { name: "Raju Family (DLN)" },
-  { name: "Petluri Family" },
-  { name: "Kothacheruvu Family" },
-  { name: "Amara Family" },
-  { name: "Yavanamanda Family" },
-  { name: "Muppala Family (Raju)" },
-  { name: "Nandimandalam Family" },
-  { name: "Muppala Family (Siva)" },
-  { name: "Muppala Family (Jay)" },
-  { name: "Gottumukkala Family" },
-  { name: "Kakani Family (Seshu)" },
-  { name: "Kakani Family (Satish)" },
-  { name: "Palacharla Family" },
-  { name: "Rao Family" },
-  { name: "Reddy Family (Narsa)" },
-  { name: "Reddy Family (Raghu)" },
-  { name: "Dhantaluru Family" },
-  { name: "Yarabarla Family (Nerendra)" },
-  { name: "Yarabarla Family (Nagindra)" },
-  { name: "Arnipalli Family" },
-  { name: "Rajan Family" },
-  { name: "Raj Family (Gasper)" },
-  { name: "Cooke Family" },
-  { name: "Plaster Family" },
-  { name: "Epps Family" },
-  { name: "Strom Family" },
-  { name: "Parekh Family" },
-  { name: "Glenn Family" },
-  { name: "Abram Haghnazari" },
-  { name: "Tony Wilson" },
-  { name: "Sashi Boduvala" },
-  { name: "Shiva Kapoor" },
-  { name: "Balaji Lenin" },
-  { name: "Jamie Connolly" },
-  { name: "Turnner Pham" },
-  { name: "Vinay Bhamidipati" },
-  { name: "Pedro Damy" },
-  { name: "Felipe" },
-  { name: "Erick Vilches" },
-  { name: "Drew Werntz" },
-  { name: "Saini Family" },
-  { name: "Sagi Family (Snehit)" },
-  { name: "Varma Family (Vinay)" },
-  { name: "Vegesna Family (Mohan)" },
-  { name: "Vegesna Family (Surya)" },
-  { name: "Penmetsa Family (Padmaja)" },
-  { name: "Ada Family (Ravi)" },
-  { name: "Ada Family (Srinivas)" },
-  { name: "Narendrula Family" },
-  { name: "Janani Rammohan" }
-]
+// Function to read guests from CSV file
+function readGuestsFromCSV(filePath) {
+  return new Promise((resolve, reject) => {
+    const guests = []
+    
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        // Read from "Database Name" and "Guest Count (Invited)" columns
+        if (row['Database Name'] && row['Database Name'].trim()) {
+          const invitedCount = parseInt(row['Guest Count (Invited)']) || 0
+          guests.push({ 
+            name: row['Database Name'].trim(),
+            invitedCount: invitedCount
+          })
+        }
+      })
+      .on('end', () => {
+        console.log(`Read ${guests.length} guests from CSV`)
+        resolve(guests)
+      })
+      .on('error', (error) => {
+        reject(error)
+      })
+  })
+}
 
 async function populateGuests() {
   try {
@@ -87,11 +42,21 @@ async function populateGuests() {
     await mongoose.connect(mongo)
     console.log('Connected to database')
     
+    // Read guests from CSV file
+    const csvFilePath = './Guest List - Vamsi List.csv'
+    const guestsFromCSV = await readGuestsFromCSV(csvFilePath)
+    
+    if (guestsFromCSV.length === 0) {
+      console.log('No guests found in CSV file')
+      process.exit(1)
+    }
+    
     // Clear existing guests (optional)
     await Guest.deleteMany({})
+    console.log('Cleared existing guests')
     
-    // Add sample guests
-    for (const guestData of sampleGuests) {
+    // Add guests from CSV
+    for (const guestData of guestsFromCSV) {
       const guest = new Guest(guestData)
       await guest.save()
       console.log(`Added ${guest.name}`)

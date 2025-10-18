@@ -299,14 +299,14 @@
 
     const html = guests.map(guest => {
       const status = guest.rsvpSubmitted ? ' (Already responded)' : '';
-      return `<div class="search-item" onclick="selectGuest('${guest.guestId}', '${guest.name}', ${guest.rsvpSubmitted})">${guest.name}${status}</div>`;
+      return `<div class="search-item" onclick="selectGuest('${guest.guestId}', '${guest.name}', ${guest.rsvpSubmitted}, ${guest.invitedCount})">${guest.name}${status}</div>`;
     }).join('');
 
     searchResults.innerHTML = html;
     searchResults.style.display = 'block';
   }
 
-  function selectGuest(guestId, guestName, alreadySubmitted) {
+  function selectGuest(guestId, guestName, alreadySubmitted, invitedCount) {
     if (alreadySubmitted) {
       const confirmUpdate = confirm(`${guestName} has already submitted an RSVP. Do you want to update their response?`);
       if (!confirmUpdate) {
@@ -322,6 +322,15 @@
     
     // Show the family name in the selected family box
     document.getElementById('familyName').textContent = guestName;
+    
+    // Update the max value for adults attending input
+    const adultsInput = document.querySelector('input[name="adultsAttending"]');
+    adultsInput.max = invitedCount;
+    adultsInput.placeholder = `Max ${invitedCount} guests`;
+    
+    // Update the label to show the invited count
+    const adultsLabel = adultsInput.previousElementSibling;
+    adultsLabel.textContent = `Number of Guests Attending (Max ${invitedCount}):`;
     
     // Show the rest of the form
     document.getElementById('rsvpFormFields').style.display = 'block';

@@ -4,6 +4,7 @@
 import mongoose from 'mongoose'
 import Guest from './src/models/Family.js' // Using updated Guest model
 import dotenv from 'dotenv'
+import fs from 'fs'
 
 dotenv.config()
 

@@ -7,7 +7,8 @@ const GuestSchema = new mongoose.Schema({
   attendingWedding: { type: Boolean, default: false },
   attendingReception: { type: Boolean, default: false },
   usingHotelBlock: { type: Boolean, default: false },
-  message: { type: String, trim: true, maxlength: 1000 }
+  message: { type: String, trim: true, maxlength: 1000 },
+  invitedCount: { type: Number, required: true, min: 0 }
 }, { timestamps: true })
 
 // Index for searching guest names

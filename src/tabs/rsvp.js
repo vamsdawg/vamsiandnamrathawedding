@@ -78,6 +78,16 @@ router.post('/', async (req, res) => {
         throw new Error('Guest not found')
       }
       
+      const invitedGuestCount = existingGuest.invitedCount || 0;
+      if (parseInt(adultsAttending) > invitedGuestCount) {
+        return res.status(400).render('rsvp', { 
+          title: 'RSVP', 
+          error: `You can only select up to ${invitedGuestCount} guests.`, 
+          values: req.body,
+          rsvpBg
+        });
+      }
+      
       // Process event selections from dropdowns
       const isAttendingWedding = attendingWedding === 'yes'
       const isAttendingReception = attendingReception === 'yes'

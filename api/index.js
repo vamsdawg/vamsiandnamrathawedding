@@ -154,8 +154,10 @@ app.get('/proposal-gallery', async (req, res) => {
   const gcsImages = getGCSImages('proposal');
   if (gcsImages && gcsImages.length > 0) {
     images = gcsImages;
-    galleryBg = images[0]; // Use first image as background
+    // Get the specific proposal-bg image from GCS
+    galleryBg = getGCSBackground('proposal-bg') || getGCSBackground('proposalbg') || images[0];
     console.log(`✅ Using ${images.length} proposal images from Google Cloud Storage`);
+    console.log(`✅ Proposal background: ${galleryBg}`);
   } else {
     // Fallback to local filesystem for development
     const proposalDir = path.join(__dirname, '../public/images/gallery/Proposal Pics');

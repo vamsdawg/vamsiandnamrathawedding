@@ -216,15 +216,80 @@ app.get('/faq', (req, res) => {
   res.render('faq', { title: 'FAQ', bodyClass, faqBg });
 });
 
+// ========== SERVERLESS DATABASE CONNECTION CACHING ==========
+// Cache the MongoDB connection across serverless function invocations
+let cachedConnection = null;
+
+// Configure mongoose for serverless environment
+mongoose.set('strictQuery', false);
+mongoose.set('bufferCommands', false); // Disable command buffering
+mongoose.set('bufferTimeoutMS', 30000); // 30 second timeout
+
+async function connectToDatabase() {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    console.log('✅ Using cached MongoDB connection');
+    return cachedConnection;
+  }
+
+  try {
+    console.log('🔄 Establishing new MongoDB connection...');
+    
+    const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site';
+    
+    const opts = {
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      maxIdleTimeMS: 60000, // Close idle connections after 60 seconds
+      retryWrites: true,
+      w: 'majority'
+    };
+
+    cachedConnection = await mongoose.connect(mongo, opts);
+    console.log('✅ MongoDB connected successfully');
+    
+    return cachedConnection;
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    cachedConnection = null;
+    throw error;
+  }
+}
+
+// Handle connection errors
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+  cachedConnection = null;
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+  cachedConnection = null;
+});
+
+// Middleware to ensure database connection before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection middleware error:', error);
+    res.status(503).json({ 
+      error: 'Database temporarily unavailable. Please try again in a moment.' 
+    });
+  }
+});
+
+// Connect to database immediately on module load
+connectToDatabase().catch(err => {
+  console.error('Initial database connection failed:', err);
+});
+// ========== END SERVERLESS DATABASE CONNECTION CACHING ==========
+
 // 404
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Not Found' })
-})
-
-// Connect to database for serverless
-const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site'
-mongoose.connect(mongo).catch(err => {
-  console.error('Database connection failed:', err)
 })
 
 // Export the Express app as a Vercel serverless function

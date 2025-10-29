@@ -39,7 +39,12 @@ function readGuestsFromCSV(filePath) {
 async function populateGuests() {
   try {
     const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site'
-    await mongoose.connect(mongo)
+    
+    console.log('Connecting to MongoDB...')
+    await mongoose.connect(mongo, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+    })
     console.log('Connected to database')
     
     // Read guests from CSV file

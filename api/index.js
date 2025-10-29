@@ -154,8 +154,30 @@ app.get('/proposal-gallery', async (req, res) => {
   const gcsImages = getGCSImages('proposal');
   if (gcsImages && gcsImages.length > 0) {
     images = gcsImages;
-    // Get the specific proposal-bg image from GCS
-    galleryBg = getGCSBackground('proposal-bg') || getGCSBackground('proposalbg') || images[0];
+    
+    // First try to get the specific proposal-bg image from backgrounds
+    galleryBg = getGCSBackground('proposal-bg') || getGCSBackground('proposalbg');
+    
+    // If not found in backgrounds, search in the proposal gallery array
+    if (!galleryBg && gcsConfig && gcsConfig.galleries && gcsConfig.galleries.proposal) {
+      const bgImage = gcsConfig.galleries.proposal.find(img => 
+        img.fileName && img.fileName.toLowerCase().includes('proposal-bg')
+      );
+      if (bgImage) {
+        galleryBg = bgImage.url;
+      }
+    }
+    
+    // Fall back to first image if still not found
+    if (!galleryBg) {
+      galleryBg = images[0];
+    }
+    
+    // Filter out the background image from the gallery
+    if (galleryBg) {
+      images = images.filter(url => url !== galleryBg);
+    }
+    
     console.log(`✅ Using ${images.length} proposal images from Google Cloud Storage`);
     console.log(`✅ Proposal background: ${galleryBg}`);
   } else {

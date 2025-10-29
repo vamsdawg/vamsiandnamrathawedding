@@ -8,4 +8,134 @@
   </div>
 </main>
 
+<!-- Mobile Device Notification -->
+<div id="mobileNotification" class="mobile-notification">
+  <div class="mobile-notification-content">
+    <p>You're viewing our website on a mobile device. Everything works great here, but for the best experience, please visit us on a computer.</p>
+    <button id="closeMobileNotification" class="close-notification-btn">Got it</button>
+  </div>
+</div>
+
+<style>
+  .mobile-notification {
+    display: none; /* Hidden by default */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.9));
+    color: #fff;
+    padding: 1.25rem 1rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    animation: slideUp 0.4s ease-out;
+    border-top: 2px solid var(--accent);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .mobile-notification-content {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .mobile-notification-content p {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+  }
+
+  .close-notification-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .close-notification-btn:hover {
+    background: #c19b4d;
+    transform: scale(1.05);
+  }
+
+  .close-notification-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Only show on mobile devices */
+  @media (max-width: 768px) {
+    .mobile-notification.show {
+      display: block;
+    }
+  }
+
+  /* Ensure it doesn't show on desktop even if .show class is added */
+  @media (min-width: 769px) {
+    .mobile-notification {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Mobile notification functionality
+  (function() {
+    // Check if user is on mobile device
+    const isMobile = window.innerWidth <= 768;
+    
+    // Check if notification was previously dismissed
+    const notificationDismissed = localStorage.getItem('mobileNotificationDismissed');
+    
+    if (isMobile && !notificationDismissed) {
+      const notification = document.getElementById('mobileNotification');
+      const closeBtn = document.getElementById('closeMobileNotification');
+      
+      // Show notification after a short delay
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 1000); // Show after 1 second
+      
+      // Close notification when button is clicked
+      closeBtn.addEventListener('click', function() {
+        notification.style.animation = 'slideDown 0.3s ease-out';
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+          // Remember that user dismissed the notification
+          localStorage.setItem('mobileNotificationDismissed', 'true');
+        }, 300);
+      });
+    }
+  })();
+</script>
+
+<style>
+  @keyframes slideDown {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+</style>
+
 <%- include('partials/footer') %>

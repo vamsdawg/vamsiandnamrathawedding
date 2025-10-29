@@ -199,7 +199,7 @@
       <!-- Guest Search - Always Visible -->
       <div class="form-group">
         <label class="form-label">Search for your family name:</label>
-        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." readonly>
+        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." autocomplete="off" autocorrect="off" autocapitalize="words">
         <div id="searchResults" class="search-results"></div>
       </div>
       
@@ -260,16 +260,38 @@
   const searchResults = document.getElementById('searchResults');
   const rsvpForm = document.getElementById('rsvpForm');
   let searchTimeout;
+  let guestSelected = false; // Track if a guest has been selected
 
-  // Make search input clickable to start typing
-  searchInput.addEventListener('click', function() {
-    this.removeAttribute('readonly');
-    this.focus();
+  // Prevent form submission if guest not selected
+  rsvpForm.addEventListener('submit', function(e) {
+    if (!guestSelected) {
+      e.preventDefault();
+      alert('Please select a family name from the search results first.');
+      searchInput.focus();
+      return false;
+    }
+  });
+
+  // Clear selection if user starts typing again
+  searchInput.addEventListener('focus', function() {
+    if (guestSelected) {
+      const confirmChange = confirm('Do you want to search for a different family?');
+      if (confirmChange) {
+        resetForm();
+      } else {
+        this.blur(); // Remove focus if they don't want to change
+      }
+    }
   });
 
   searchInput.addEventListener('input', function() {
     clearTimeout(searchTimeout);
     const query = this.value.trim();
+    
+    // Reset guest selection when typing
+    if (guestSelected) {
+      resetForm();
+    }
     
     if (query.length < 2) {
       searchResults.style.display = 'none';
@@ -317,8 +339,11 @@
     
     document.getElementById('selectedGuestId').value = guestId;
     searchInput.value = guestName;
-    searchInput.setAttribute('readonly', 'true');
     searchResults.style.display = 'none';
+    guestSelected = true; // Mark as selected
+    
+    // Blur the input to hide keyboard on mobile
+    searchInput.blur();
     
     // Show the family name in the selected family box
     document.getElementById('familyName').textContent = guestName;
@@ -345,8 +370,17 @@
       submitBtn.style.background = '#d9b166';
     }
     
-    // Scroll to the form fields
-    document.getElementById('rsvpFormFields').scrollIntoView({ behavior: 'smooth' });
+    // Scroll to the form fields on mobile
+    setTimeout(() => {
+      document.getElementById('rsvpFormFields').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+
+  function resetForm() {
+    guestSelected = false;
+    document.getElementById('selectedGuestId').value = '';
+    document.getElementById('rsvpFormFields').style.display = 'none';
+    searchResults.style.display = 'none';
   }
 
   // Hide search results when clicking outside

@@ -219,6 +219,7 @@ app.get('/faq', (req, res) => {
 // ========== SERVERLESS DATABASE CONNECTION CACHING ==========
 // Cache the MongoDB connection across serverless function invocations
 let cachedConnection = null;
+let lastConnectionTime = null;
 
 // Configure mongoose for serverless environment
 mongoose.set('strictQuery', false);
@@ -226,9 +227,28 @@ mongoose.set('bufferCommands', false); // Disable command buffering
 mongoose.set('bufferTimeoutMS', 30000); // 30 second timeout
 
 async function connectToDatabase() {
-  if (cachedConnection && mongoose.connection.readyState === 1) {
-    console.log('✅ Using cached MongoDB connection');
+  const now = Date.now();
+  const CONNECTION_MAX_AGE = 10 * 60 * 1000; // 10 minutes - refresh connection periodically
+  
+  // Check if we have a valid cached connection
+  const isConnectionValid = cachedConnection && 
+                           mongoose.connection.readyState === 1 &&
+                           lastConnectionTime &&
+                           (now - lastConnectionTime) < CONNECTION_MAX_AGE;
+  
+  if (isConnectionValid) {
+    console.log('✅ Using cached MongoDB connection (age: ' + Math.round((now - lastConnectionTime) / 1000) + 's)');
     return cachedConnection;
+  }
+
+  // Close existing connection if it's stale
+  if (mongoose.connection.readyState !== 0) {
+    console.log('🔄 Closing stale MongoDB connection...');
+    try {
+      await mongoose.connection.close();
+    } catch (err) {
+      console.error('Error closing stale connection:', err);
+    }
   }
 
   try {
@@ -241,18 +261,22 @@ async function connectToDatabase() {
       socketTimeoutMS: 45000,
       maxPoolSize: 10,
       minPoolSize: 1,
-      maxIdleTimeMS: 60000, // Close idle connections after 60 seconds
+      maxIdleTimeMS: 600000, // 10 minutes - keep connections alive
+      connectTimeoutMS: 30000,
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      heartbeatFrequencyMS: 10000, // Check connection health every 10 seconds
     };
 
     cachedConnection = await mongoose.connect(mongo, opts);
+    lastConnectionTime = Date.now();
     console.log('✅ MongoDB connected successfully');
     
     return cachedConnection;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     cachedConnection = null;
+    lastConnectionTime = null;
     throw error;
   }
 }
@@ -261,11 +285,24 @@ async function connectToDatabase() {
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
   cachedConnection = null;
+  lastConnectionTime = null;
 });
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
   cachedConnection = null;
+  lastConnectionTime = null;
+});
+
+// Connection health monitoring
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected');
+  lastConnectionTime = Date.now();
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB reconnected');
+  lastConnectionTime = Date.now();
 });
 
 // Middleware to ensure database connection before handling requests
@@ -276,7 +313,8 @@ app.use(async (req, res, next) => {
   } catch (error) {
     console.error('Database connection middleware error:', error);
     res.status(503).json({ 
-      error: 'Database temporarily unavailable. Please try again in a moment.' 
+      error: 'Database temporarily unavailable. Please try again in a moment.',
+      message: 'We are experiencing connectivity issues. Your request is safe to retry.'
     });
   }
 });

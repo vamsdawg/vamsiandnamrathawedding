@@ -43,7 +43,7 @@ async function populateGuests() {
     console.log('Connected to database')
     
     // Read guests from CSV file
-    const csvFilePath = './Guest List - Vamsi List.csv'
+    const csvFilePath = './Guest List - Combined Guest List.csv'
     const guestsFromCSV = await readGuestsFromCSV(csvFilePath)
     
     if (guestsFromCSV.length === 0) {

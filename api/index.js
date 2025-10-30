@@ -244,64 +244,88 @@ app.get('/faq', (req, res) => {
 // Cache the MongoDB connection across serverless function invocations
 let cachedConnection = null;
 let lastConnectionTime = null;
+let isConnecting = false; // Prevent concurrent connection attempts
 
 // Configure mongoose for serverless environment
 mongoose.set('strictQuery', false);
-mongoose.set('bufferCommands', false); // Disable command buffering
-mongoose.set('bufferTimeoutMS', 30000); // 30 second timeout
+mongoose.set('bufferCommands', false); // Disable command buffering - fail fast instead of queuing
+mongoose.set('bufferTimeoutMS', 5000); // Short buffer timeout to fail quickly
 
 async function connectToDatabase() {
   const now = Date.now();
-  const CONNECTION_MAX_AGE = 10 * 60 * 1000; // 10 minutes - refresh connection periodically
+  const CONNECTION_MAX_AGE = 5 * 60 * 1000; // 5 minutes - shorter for serverless (was 10 minutes)
   
   // Check if we have a valid cached connection
+  const readyState = mongoose.connection.readyState;
   const isConnectionValid = cachedConnection && 
-                           mongoose.connection.readyState === 1 &&
+                           readyState === 1 && // 1 = connected
                            lastConnectionTime &&
                            (now - lastConnectionTime) < CONNECTION_MAX_AGE;
   
   if (isConnectionValid) {
-    console.log('✅ Using cached MongoDB connection (age: ' + Math.round((now - lastConnectionTime) / 1000) + 's)');
+    console.log('✅ Using cached MongoDB connection (age: ' + Math.round((now - lastConnectionTime) / 1000) + 's, state: ' + readyState + ')');
     return cachedConnection;
   }
 
-  // Close existing connection if it's stale
-  if (mongoose.connection.readyState !== 0) {
-    console.log('🔄 Closing stale MongoDB connection...');
-    try {
-      await mongoose.connection.close();
-    } catch (err) {
-      console.error('Error closing stale connection:', err);
+  // If another request is already connecting, wait for it
+  if (isConnecting) {
+    console.log('⏳ Waiting for existing connection attempt...');
+    let attempts = 0;
+    while (isConnecting && attempts < 50) { // Wait up to 5 seconds
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    if (mongoose.connection.readyState === 1) {
+      console.log('✅ Connection established by concurrent request');
+      return cachedConnection;
     }
   }
 
+  isConnecting = true;
+  
   try {
+    // Close existing connection if it's not in a good state
+    if (readyState !== 0 && readyState !== 1) {
+      console.log('🔄 Closing unhealthy MongoDB connection (state: ' + readyState + ')...');
+      try {
+        await mongoose.connection.close(false); // Don't force, allow cleanup
+      } catch (err) {
+        console.error('Error closing stale connection:', err);
+        // Force close if graceful close fails
+        await mongoose.connection.close(true);
+      }
+    }
+
     console.log('🔄 Establishing new MongoDB connection...');
     
     const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site';
     
+    // Optimized options for serverless/Vercel
     const opts = {
-      serverSelectionTimeoutMS: 30000, // 30 seconds
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      minPoolSize: 1,
-      maxIdleTimeMS: 600000, // 10 minutes - keep connections alive
-      connectTimeoutMS: 30000,
+      serverSelectionTimeoutMS: 10000, // 10 seconds (reduced from 30)
+      socketTimeoutMS: 30000, // 30 seconds (reduced from 45)
+      maxPoolSize: 1, // Only 1 connection per serverless function (was 10)
+      minPoolSize: 0, // No minimum (was 1)
+      maxIdleTimeMS: 300000, // 5 minutes - close idle connections faster (was 10 minutes)
+      connectTimeoutMS: 10000, // 10 seconds (reduced from 30)
       retryWrites: true,
       w: 'majority',
-      heartbeatFrequencyMS: 10000, // Check connection health every 10 seconds
+      heartbeatFrequencyMS: 30000, // Check every 30 seconds (was 10 seconds)
+      serverApi: { version: '1', strict: true, deprecationErrors: true }, // Use stable API
     };
 
     cachedConnection = await mongoose.connect(mongo, opts);
     lastConnectionTime = Date.now();
-    console.log('✅ MongoDB connected successfully');
+    console.log('✅ MongoDB connected successfully (state: ' + mongoose.connection.readyState + ')');
     
     return cachedConnection;
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error.message);
     cachedConnection = null;
     lastConnectionTime = null;
     throw error;
+  } finally {
+    isConnecting = false;
   }
 }
 
@@ -333,13 +357,43 @@ mongoose.connection.on('reconnected', () => {
 app.use(async (req, res, next) => {
   try {
     await connectToDatabase();
+    
+    // Verify connection is actually working before proceeding
+    const state = mongoose.connection.readyState;
+    if (state !== 1) {
+      console.error('❌ Database connection state invalid:', state);
+      throw new Error('Database connection not ready (state: ' + state + ')');
+    }
+    
     next();
   } catch (error) {
-    console.error('Database connection middleware error:', error);
-    res.status(503).json({ 
-      error: 'Database temporarily unavailable. Please try again in a moment.',
-      message: 'We are experiencing connectivity issues. Your request is safe to retry.'
-    });
+    console.error('Database connection middleware error:', error.message);
+    
+    // Reset connection cache on error
+    cachedConnection = null;
+    lastConnectionTime = null;
+    
+    // For RSVP search specifically, return empty array instead of error page
+    if (req.path === '/rsvp/search-guests') {
+      return res.status(503).json({ 
+        error: 'Database temporarily unavailable. Please refresh and try again.',
+        results: []
+      });
+    }
+    
+    res.status(503).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Service Temporarily Unavailable</title></head>
+      <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+        <h1>We're experiencing connectivity issues</h1>
+        <p>Please refresh the page in a moment.</p>
+        <button onclick="location.reload()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+          Refresh Page
+        </button>
+      </body>
+      </html>
+    `);
   }
 });
 

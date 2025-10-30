@@ -299,18 +299,50 @@
     }
 
     searchTimeout = setTimeout(() => {
-      fetch(`/rsvp/search-guests?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(guests => {
-          displaySearchResults(guests);
-        })
-        .catch(err => {
-          console.error('Search error:', err);
-          searchResults.innerHTML = '<div class="search-item">Search failed. Please try again.</div>';
-          searchResults.style.display = 'block';
-        });
+      performSearch(query, 0); // Start with 0 retries
     }, 300);
   });
+
+  async function performSearch(query, retryCount = 0) {
+    const maxRetries = 2;
+    
+    try {
+      const response = await fetch(`/rsvp/search-guests?q=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Check if response has error field
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      // Handle results array
+      const guests = Array.isArray(data) ? data : (data.results || []);
+      displaySearchResults(guests);
+      
+    } catch (err) {
+      console.error('Search error (attempt ' + (retryCount + 1) + '):', err.message);
+      
+      // Retry logic for connection issues
+      if (retryCount < maxRetries && (err.message.includes('Failed to fetch') || err.message.includes('503') || err.message.includes('Database'))) {
+        console.log('Retrying search in 1 second...');
+        searchResults.innerHTML = '<div class="search-item">Reconnecting... Please wait.</div>';
+        searchResults.style.display = 'block';
+        
+        setTimeout(() => {
+          performSearch(query, retryCount + 1);
+        }, 1000);
+      } else {
+        // Final error display
+        searchResults.innerHTML = '<div class="search-item" style="color: #ff6b6b;">Search failed. Please refresh the page and try again.</div>';
+        searchResults.style.display = 'block';
+      }
+    }
+  }
 
   function displaySearchResults(guests) {
     if (guests.length === 0) {

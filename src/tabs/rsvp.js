@@ -50,9 +50,33 @@ router.get('/search-guests', async (req, res) => {
       return res.json([])
     }
     
-    const guests = await Guest.find({
+    // Add connection state check
+    const mongoose = await import('mongoose');
+    const connectionState = mongoose.default.connection.readyState;
+    
+    if (connectionState !== 1) {
+      console.error('❌ Search attempted with disconnected database (state: ' + connectionState + ')');
+      return res.status(503).json({ 
+        error: 'Database connection not ready. Please try again.',
+        results: []
+      });
+    }
+    
+    console.log('🔍 Searching for guests matching:', q);
+    
+    // Perform the search with a timeout
+    const searchPromise = Guest.find({
       name: { $regex: q, $options: 'i' }
-    }).limit(10)
+    })
+    .limit(10)
+    .maxTimeMS(5000) // 5 second query timeout
+    .lean(); // Use lean() for better performance
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Search timeout')), 6000)
+    );
+    
+    const guests = await Promise.race([searchPromise, timeoutPromise]);
     
     const results = guests.map(guest => ({
       guestId: guest._id,
@@ -61,10 +85,17 @@ router.get('/search-guests', async (req, res) => {
       invitedCount: guest.invitedCount || 0
     }))
     
+    console.log('✅ Found', results.length, 'guests matching:', q);
     res.json(results)
   } catch (err) {
-    console.error('Error searching guests:', err)
-    res.status(500).json([])
+    console.error('❌ Error searching guests:', err.message, 'Query:', req.query.q);
+    
+    // Return helpful error response
+    res.status(500).json({ 
+      error: 'Search failed. Please refresh the page and try again.',
+      message: err.message,
+      results: []
+    })
   }
 })
 

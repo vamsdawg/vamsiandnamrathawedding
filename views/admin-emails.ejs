@@ -7,7 +7,7 @@
   }
   
   .header {
-    background: #d9b166;
+    background: #8b9f87;
     color: white;
     padding: 1rem 2rem;
     display: flex;
@@ -30,7 +30,7 @@
   }
   
   h1 {
-    color: #d9b166;
+    color: #2c3e2a;
     margin-bottom: 0.5rem;
   }
   
@@ -63,8 +63,9 @@
   label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #333;
-    font-weight: 500;
+    color: #2c3e2a;
+    font-weight: 600;
+    font-size: 0.95rem;
   }
   
   .help-text {
@@ -74,22 +75,26 @@
   }
   
   input[type="text"],
+  input[type="email"],
   textarea,
   select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 5px;
     font-size: 1rem;
     font-family: 'Poppins', sans-serif;
     transition: border-color 0.3s;
+    background: white;
+    color: #333;
   }
   
   input:focus,
   textarea:focus,
   select:focus {
     outline: none;
-    border-color: #d9b166;
+    border-color: #8b9f87;
+    box-shadow: 0 0 0 3px rgba(139, 159, 135, 0.1);
   }
   
   textarea {
@@ -112,23 +117,28 @@
   
   /* Recipient Selection */
   .recipient-stats {
-    background: #f5f5f5;
-    padding: 1rem;
+    background: #f0f4ef;
+    padding: 1.25rem;
     border-radius: 5px;
     margin-bottom: 1rem;
+    border: 2px solid #8b9f87;
   }
   
   .stat-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.5rem;
+    color: #2c3e2a;
+    font-size: 0.95rem;
   }
   
   .stat-row:last-child {
     margin-bottom: 0;
     padding-top: 0.5rem;
-    border-top: 1px solid #ddd;
+    border-top: 2px solid #8b9f87;
     font-weight: bold;
+    font-size: 1.05rem;
+    color: #2c3e2a;
   }
   
   /* Button Styles */
@@ -146,15 +156,18 @@
     cursor: pointer;
     transition: all 0.3s;
     font-family: 'Poppins', sans-serif;
+    font-weight: 600;
   }
   
   .btn-primary {
-    background: #d9b166;
+    background: #8b9f87;
     color: white;
   }
   
   .btn-primary:hover {
-    background: #c9a156;
+    background: #7a8d76;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(139, 159, 135, 0.3);
   }
   
   .btn-secondary {
@@ -164,6 +177,7 @@
   
   .btn-secondary:hover {
     background: #5a6268;
+    transform: translateY(-1px);
   }
   
   .btn:disabled {
@@ -199,7 +213,7 @@
   /* Loading Spinner */
   .spinner {
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #d9b166;
+    border-top: 3px solid #8b9f87;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -218,16 +232,20 @@
   
   /* Email Preview */
   .email-preview {
-    border: 1px solid #ddd;
+    border: 2px solid #8b9f87;
     border-radius: 5px;
     padding: 1.5rem;
-    background: #fafafa;
+    background: #f0f4ef;
     margin-top: 1rem;
   }
   
   .email-preview h3 {
     margin-top: 0;
-    color: #d9b166;
+    color: #2c3e2a;
+  }
+  
+  .email-preview p {
+    color: #666;
   }
   
   .preview-content {
@@ -235,11 +253,13 @@
     padding: 1.5rem;
     border-radius: 5px;
     margin-top: 1rem;
+    color: #333;
+    border: 1px solid #ddd;
   }
 </style>
 
 <div class="header">
-  <h2>📧 Email Guests</h2>
+  <h2 style="margin: 0; color: white;">📧 Email Guests</h2>
   <a href="/admin/dashboard" class="back-link">← Back to Dashboard</a>
 </div>
 

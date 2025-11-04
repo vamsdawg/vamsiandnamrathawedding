@@ -20,9 +20,9 @@ const getTransporter = () => {
 const createRsvpConfirmationEmail = (guestName, rsvpDetails) => {
   const { adultsAttending, attendingWedding, attendingReception, usingHotelBlock, message } = rsvpDetails
   
-  // Google Calendar links
-  const weddingCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Ceremony&dates=20260228T080000/20260228T140000&details=Join+us+for+the+wedding+ceremony+of+Namratha+and+Vamsi&location=TBD&sf=true&output=xml'
-  const receptionCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Reception&dates=20260228T183000/20260301T000000&details=Join+us+for+the+wedding+reception+of+Namratha+and+Vamsi&location=TBD&sf=true&output=xml'
+  // Google Calendar links with specific locations
+  const weddingCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Ceremony&dates=20260228T080000/20260228T140000&details=Join+us+for+the+wedding+ceremony+of+Namratha+and+Vamsi&location=460+Rockbridge+Rd+NW%2C+Lilburn%2C+GA+30047&sf=true&output=xml'
+  const receptionCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Reception&dates=20260228T183000/20260301T000000&details=Join+us+for+the+wedding+reception+of+Namratha+and+Vamsi&location=6050+Peachtree+Industrial+Blvd%2C+Norcross%2C+GA+30071&sf=true&output=xml'
   
   return {
     subject: `RSVP Confirmation - ${process.env.COUPLE_NAMES} Wedding`,

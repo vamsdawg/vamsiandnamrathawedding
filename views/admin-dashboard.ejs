@@ -7,7 +7,7 @@
   }
   
   .header {
-    background: #d9b166;
+    background: #8b9f87;
     color: white;
     padding: 1rem 2rem;
     display: flex;
@@ -56,7 +56,7 @@
   }
   
   .sidebar-header {
-    background: #d9b166;
+    background: #8b9f87;
     color: white;
     padding: 1rem;
     display: flex;
@@ -93,8 +93,9 @@
     text-align: center;
     padding: 0.5rem;
     border-radius: 5px;
-    background: #f8f9fa;
-    color: #333;
+    background: #f0f4ef;
+    color: #2c3e2a;
+    font-weight: 600;
   }
   
   .guest-search {
@@ -192,7 +193,7 @@
   .stat-number {
     font-size: 2rem;
     font-weight: bold;
-    color: #d9b166;
+    color: #8b9f87;
   }
   
   .stat-label {
@@ -209,7 +210,7 @@
   }
   
   .section-header {
-    background: #d9b166;
+    background: #8b9f87;
     color: white;
     padding: 1rem 2rem;
     border-bottom: 1px solid #dee2e6;
@@ -224,7 +225,7 @@
     padding: 1rem;
     margin: 0.5rem 0;
     border-radius: 8px;
-    border-left: 4px solid #d9b166;
+    border-left: 4px solid #8b9f87;
   }
   
   .rsvp-name {
@@ -427,7 +428,7 @@
               <div><strong>Reception:</strong> <span class="<%= guest.attendingReception ? 'attending-yes' : 'attending-no' %>"><%= guest.attendingReception ? 'Yes' : 'No' %></span></div>
               <div><strong>Hotel:</strong> <%= guest.usingHotelBlock ? 'Yes' : 'No' %></div>
               <% if (guest.email) { %>
-                <div style="grid-column: 1/-1;"><strong>Email:</strong> <a href="mailto:<%= guest.email %>" style="color: #d9b166;"><%= guest.email %></a></div>
+                <div style="grid-column: 1/-1;"><strong>Email:</strong> <a href="mailto:<%= guest.email %>" style="color: #8b9f87; text-decoration: underline;"><%= guest.email %></a></div>
               <% } %>
               <% if (guest.message) { %>
                 <div style="grid-column: 1/-1; margin-top: 0.5rem;"><strong>Message:</strong> "<%= guest.message %>"</div>

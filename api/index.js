@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 
 import rsvpRouter from '../src/tabs/rsvp.js'
 import adminRouter from '../src/tabs/admin.js'
+import { sendBulkEmail, sendTestEmail } from '../src/utils/emailService.js'
+import Guest from '../src/models/Family.js'
 
 dotenv.config()
 
@@ -218,6 +220,167 @@ app.get('/ceremony', (req, res) => {
 
 app.use('/rsvp', rsvpRouter)
 app.use('/', adminRouter)
+
+// ========== EMAIL ROUTES FOR ADMIN ==========
+// Admin email interface
+app.get('/admin/emails', (req, res) => {
+  if (!req.session.isAdmin) {
+    return res.redirect('/admin/login')
+  }
+  res.render('admin-emails', { title: 'Email Guests' })
+})
+
+// Get email statistics for recipient filtering
+app.get('/admin/email-stats', async (req, res) => {
+  try {
+    if (!req.session.isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized' })
+    }
+
+    const filter = req.query.filter || 'all'
+    
+    // Count total guests
+    const totalGuests = await Guest.countDocuments({})
+    
+    // Count guests with email
+    const guestsWithEmail = await Guest.countDocuments({ 
+      email: { $exists: true, $ne: '' } 
+    })
+    
+    // Build query based on filter
+    let query = { email: { $exists: true, $ne: '' } }
+    
+    switch (filter) {
+      case 'rsvp-yes':
+        query.$or = [
+          { attendingWedding: true },
+          { attendingReception: true }
+        ]
+        break
+      case 'rsvp-no':
+        query.attendingWedding = false
+        query.attendingReception = false
+        query.rsvpSubmitted = true
+        break
+      case 'not-responded':
+        query.rsvpSubmitted = { $ne: true }
+        break
+      case 'attending-wedding':
+        query.attendingWedding = true
+        break
+      case 'attending-reception':
+        query.attendingReception = true
+        break
+      case 'using-hotel':
+        query.usingHotelBlock = true
+        break
+    }
+    
+    const selectedCount = await Guest.countDocuments(query)
+    
+    res.json({
+      total: totalGuests,
+      withEmail: guestsWithEmail,
+      selected: selectedCount
+    })
+  } catch (error) {
+    console.error('Error fetching email stats:', error)
+    res.status(500).json({ error: 'Failed to fetch statistics' })
+  }
+})
+
+// Send bulk email
+app.post('/admin/send-bulk-email', async (req, res) => {
+  try {
+    if (!req.session.isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized' })
+    }
+
+    const { subject, message, recipientFilter, isHtml } = req.body
+    
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Subject and message are required' })
+    }
+    
+    // Build query based on filter
+    let query = { email: { $exists: true, $ne: '' } }
+    
+    switch (recipientFilter) {
+      case 'rsvp-yes':
+        query.$or = [
+          { attendingWedding: true },
+          { attendingReception: true }
+        ]
+        break
+      case 'rsvp-no':
+        query.attendingWedding = false
+        query.attendingReception = false
+        query.rsvpSubmitted = true
+        break
+      case 'not-responded':
+        query.rsvpSubmitted = { $ne: true }
+        break
+      case 'attending-wedding':
+        query.attendingWedding = true
+        break
+      case 'attending-reception':
+        query.attendingReception = true
+        break
+      case 'using-hotel':
+        query.usingHotelBlock = true
+        break
+    }
+    
+    // Get recipients
+    const guests = await Guest.find(query).select('name email').lean()
+    
+    if (guests.length === 0) {
+      return res.status(400).json({ error: 'No recipients found matching the filter' })
+    }
+    
+    // Format recipients for email service
+    const recipients = guests.map(g => ({
+      name: g.name,
+      email: g.email
+    }))
+    
+    // Send emails
+    const result = await sendBulkEmail(recipients, subject, message, isHtml)
+    
+    res.json(result)
+  } catch (error) {
+    console.error('Error sending bulk email:', error)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Send test email
+app.post('/admin/send-test-email', async (req, res) => {
+  try {
+    if (!req.session.isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized' })
+    }
+
+    const { email, subject, message, isHtml } = req.body
+    
+    if (!email || !subject || !message) {
+      return res.status(400).json({ error: 'Email, subject, and message are required' })
+    }
+    
+    // Send test email using the bulk email function with one recipient
+    const recipients = [{ name: 'Test User', email }]
+    const result = await sendBulkEmail(recipients, subject, message, isHtml)
+    
+    if (result.success && result.summary.sent > 0) {
+      res.json({ success: true, messageId: result.results[0].messageId })
+    } else {
+      res.status(500).json({ success: false, error: result.results[0]?.error || 'Failed to send' })
+    }
+  } catch (error) {
+    console.error('Error sending test email:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
 
 app.get('/registry', (req, res) => {
   const registryBg = getGCSBackground('mandapam') || getGCSBackground('ceremony');

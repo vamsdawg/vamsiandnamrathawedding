@@ -1,0 +1,553 @@
+<%- include('partials/head') %>
+<style>
+  body { 
+    font-family: 'Poppins', sans-serif; 
+    margin: 0;
+    background: #f8f9fa;
+  }
+  
+  .header {
+    background: #d9b166;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+  
+  h1 {
+    color: #d9b166;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  
+  .back-link {
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.2);
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  
+  .back-link:hover {
+    background: rgba(255,255,255,0.3);
+  }
+  
+  /* Form Styles */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .help-text {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s;
+  }
+  
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #d9b166;
+  }
+  
+  textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  /* Recipient Selection */
+  .recipient-stats {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-row:last-child {
+    margin-bottom: 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid #ddd;
+    font-weight: bold;
+  }
+  
+  /* Button Styles */
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .btn-primary {
+    background: #d9b166;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #c9a156;
+  }
+  
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Alert Messages */
+  .alert {
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+  }
+  
+  .alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+  
+  .alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+  }
+  
+  /* Loading Spinner */
+  .spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #d9b166;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* Email Preview */
+  .email-preview {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1.5rem;
+    background: #fafafa;
+    margin-top: 1rem;
+  }
+  
+  .email-preview h3 {
+    margin-top: 0;
+    color: #d9b166;
+  }
+  
+  .preview-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+  }
+</style>
+
+<div class="header">
+  <h2>📧 Email Guests</h2>
+  <a href="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+</div>
+
+<div class="container">
+  <!-- Alert Messages -->
+  <div id="alertContainer"></div>
+  
+  <!-- Email Composer Card -->
+  <div class="card">
+    <h1>Send Email to Guests</h1>
+    <p class="subtitle">Compose and send emails to your wedding guests</p>
+    
+    <form id="emailForm">
+      <!-- Recipient Selection -->
+      <div class="form-group">
+        <label>Recipients</label>
+        <select id="recipientFilter" name="recipientFilter">
+          <option value="all">All guests with email addresses</option>
+          <option value="rsvp-yes">Guests who RSVP'd Yes (Wedding or Reception)</option>
+          <option value="rsvp-no">Guests who RSVP'd No</option>
+          <option value="not-responded">Guests who haven't responded yet</option>
+          <option value="attending-wedding">Attending Wedding Ceremony</option>
+          <option value="attending-reception">Attending Reception</option>
+          <option value="using-hotel">Using Hotel Block</option>
+        </select>
+        <div class="recipient-stats" id="recipientStats">
+          <div class="stat-row">
+            <span>Total guests in database:</span>
+            <span id="totalGuests">Loading...</span>
+          </div>
+          <div class="stat-row">
+            <span>Guests with email addresses:</span>
+            <span id="guestsWithEmail">Loading...</span>
+          </div>
+          <div class="stat-row">
+            <span>Selected recipients:</span>
+            <span id="selectedRecipients">Loading...</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subject Line -->
+      <div class="form-group">
+        <label for="subject">Subject Line</label>
+        <input type="text" id="subject" name="subject" required placeholder="e.g., Important Update About Our Wedding">
+      </div>
+      
+      <!-- Email Format -->
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="isHtml" name="isHtml" checked>
+          <label for="isHtml" style="margin-bottom: 0;">Use HTML formatting (recommended for better appearance)</label>
+        </div>
+      </div>
+      
+      <!-- Message Body -->
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Type your message here...
+
+You can use {{name}} to personalize with the guest's name.
+
+Example:
+Dear {{name}},
+
+We hope this email finds you well! We wanted to share an important update about our wedding..."></textarea>
+        <div class="help-text">
+          Tip: Use {{name}} anywhere in your message to automatically insert each guest's name.
+        </div>
+      </div>
+      
+      <!-- Preview Section -->
+      <div class="email-preview" id="previewSection">
+        <h3>Email Preview</h3>
+        <p style="color: #666; font-size: 0.9rem;">This is how your email will appear to recipients</p>
+        <div class="preview-content" id="previewContent">
+          Click "Preview Email" to see how your message will look.
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="previewEmail()" style="margin-top: 1rem;">
+          🔍 Preview Email
+        </button>
+      </div>
+      
+      <!-- Test Email -->
+      <div class="form-group">
+        <label for="testEmail">Send Test Email (optional)</label>
+        <div style="display: flex; gap: 1rem;">
+          <input type="email" id="testEmail" placeholder="your.email@example.com" style="flex: 1;">
+          <button type="button" class="btn btn-secondary" onclick="sendTestEmail()">
+            📨 Send Test
+          </button>
+        </div>
+        <div class="help-text">
+          Send a test email to yourself before sending to all guests
+        </div>
+      </div>
+      
+      <!-- Send Buttons -->
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" id="sendButton">
+          📧 Send Email to <span id="recipientCount">0</span> Guests
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='/admin/dashboard'">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" class="spinner hidden"></div>
+</div>
+
+<script>
+  let guestStats = {
+    total: 0,
+    withEmail: 0,
+    selected: 0
+  };
+  
+  // Fetch guest statistics
+  async function fetchGuestStats(filter = 'all') {
+    try {
+      const response = await fetch(`/admin/email-stats?filter=${filter}`);
+      const data = await response.json();
+      
+      guestStats = data;
+      updateStatsDisplay();
+    } catch (error) {
+      console.error('Error fetching guest stats:', error);
+      showAlert('Failed to load guest statistics', 'error');
+    }
+  }
+  
+  // Update statistics display
+  function updateStatsDisplay() {
+    document.getElementById('totalGuests').textContent = guestStats.total || 0;
+    document.getElementById('guestsWithEmail').textContent = guestStats.withEmail || 0;
+    document.getElementById('selectedRecipients').textContent = guestStats.selected || 0;
+    document.getElementById('recipientCount').textContent = guestStats.selected || 0;
+  }
+  
+  // Update stats when filter changes
+  document.getElementById('recipientFilter').addEventListener('change', (e) => {
+    fetchGuestStats(e.target.value);
+  });
+  
+  // Show alert message
+  function showAlert(message, type = 'info') {
+    const alertContainer = document.getElementById('alertContainer');
+    const alertClass = `alert-${type}`;
+    
+    const alert = document.createElement('div');
+    alert.className = `alert ${alertClass}`;
+    alert.textContent = message;
+    
+    alertContainer.innerHTML = '';
+    alertContainer.appendChild(alert);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      alert.remove();
+    }, 5000);
+  }
+  
+  // Preview email
+  function previewEmail() {
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    const isHtml = document.getElementById('isHtml').checked;
+    
+    if (!subject || !message) {
+      showAlert('Please enter both subject and message to preview', 'error');
+      return;
+    }
+    
+    const previewContent = document.getElementById('previewContent');
+    const sampleName = 'John Smith';
+    const previewMessage = message.replace(/{{name}}/g, sampleName);
+    
+    if (isHtml) {
+      previewContent.innerHTML = `
+        <div style="font-family: Georgia, serif;">
+          <strong>Subject:</strong> ${subject}<br><br>
+          ${previewMessage.replace(/\n/g, '<br>')}
+        </div>
+      `;
+    } else {
+      previewContent.innerHTML = `
+        <div style="font-family: monospace; white-space: pre-wrap;">
+          <strong>Subject:</strong> ${subject}\n\n${previewMessage}
+        </div>
+      `;
+    }
+  }
+  
+  // Send test email
+  async function sendTestEmail() {
+    const testEmail = document.getElementById('testEmail').value;
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    const isHtml = document.getElementById('isHtml').checked;
+    
+    if (!testEmail) {
+      showAlert('Please enter an email address for the test', 'error');
+      return;
+    }
+    
+    if (!subject || !message) {
+      showAlert('Please enter subject and message before sending test', 'error');
+      return;
+    }
+    
+    const button = event.target;
+    button.disabled = true;
+    button.textContent = 'Sending...';
+    
+    try {
+      const response = await fetch('/admin/send-test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testEmail,
+          subject,
+          message,
+          isHtml
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert(`Test email sent to ${testEmail}!`, 'success');
+      } else {
+        showAlert('Failed to send test email: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      showAlert('Failed to send test email', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = '📨 Send Test';
+    }
+  }
+  
+  // Handle form submission
+  document.getElementById('emailForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    const recipientFilter = document.getElementById('recipientFilter').value;
+    const isHtml = document.getElementById('isHtml').checked;
+    
+    if (guestStats.selected === 0) {
+      showAlert('No recipients match the selected filter. Please choose a different filter.', 'error');
+      return;
+    }
+    
+    // Confirm before sending
+    const confirmed = confirm(`Are you sure you want to send this email to ${guestStats.selected} guest(s)?`);
+    if (!confirmed) return;
+    
+    const sendButton = document.getElementById('sendButton');
+    const spinner = document.getElementById('loadingSpinner');
+    
+    sendButton.disabled = true;
+    sendButton.textContent = 'Sending...';
+    spinner.classList.remove('hidden');
+    
+    try {
+      const response = await fetch('/admin/send-bulk-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject,
+          message,
+          recipientFilter,
+          isHtml
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert(`Successfully sent ${data.summary.sent} emails! (${data.summary.failed} failed)`, 'success');
+        
+        // Clear form
+        document.getElementById('emailForm').reset();
+        document.getElementById('previewContent').innerHTML = 'Click "Preview Email" to see how your message will look.';
+        
+        // Refresh stats
+        fetchGuestStats('all');
+      } else {
+        showAlert('Failed to send emails: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (error) {
+      console.error('Error sending emails:', error);
+      showAlert('Failed to send emails. Please try again.', 'error');
+    } finally {
+      sendButton.disabled = false;
+      sendButton.textContent = `📧 Send Email to ${guestStats.selected} Guests`;
+      spinner.classList.add('hidden');
+    }
+  });
+  
+  // Load initial stats
+  fetchGuestStats('all');
+</script>
+
+<%- include('partials/footer') %>

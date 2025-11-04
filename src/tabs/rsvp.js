@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import Rsvp from '../models/Rsvp.js'
 import Guest from '../models/Family.js' // Using the updated Guest model
+import { sendRsvpConfirmation } from '../utils/emailService.js'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -135,6 +136,23 @@ router.post('/', async (req, res) => {
         rsvpSubmitted: true,
         updatedAt: new Date()
       }, { new: true })
+      
+      // Send confirmation email if email is provided
+      if (guest.email) {
+        try {
+          await sendRsvpConfirmation(guest.email, guest.name, {
+            adultsAttending: guest.adultsAttending,
+            attendingWedding: guest.attendingWedding,
+            attendingReception: guest.attendingReception,
+            usingHotelBlock: guest.usingHotelBlock,
+            message: guest.message
+          })
+          console.log(`✅ Confirmation email sent to ${guest.email}`)
+        } catch (emailError) {
+          // Log the error but don't fail the RSVP
+          console.error('⚠️ Failed to send confirmation email:', emailError)
+        }
+      }
       
       const isUpdate = existingGuest.rsvpSubmitted
       res.render('rsvp-success', { 

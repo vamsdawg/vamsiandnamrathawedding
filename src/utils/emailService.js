@@ -20,6 +20,10 @@ const getTransporter = () => {
 const createRsvpConfirmationEmail = (guestName, rsvpDetails) => {
   const { adultsAttending, attendingWedding, attendingReception, usingHotelBlock, message } = rsvpDetails
   
+  // Google Calendar links
+  const weddingCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Ceremony&dates=20260228T080000/20260228T140000&details=Join+us+for+the+wedding+ceremony+of+Namratha+and+Vamsi&location=TBD&sf=true&output=xml'
+  const receptionCalendarLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Namratha+%26+Vamsi+Wedding+Reception&dates=20260228T183000/20260301T000000&details=Join+us+for+the+wedding+reception+of+Namratha+and+Vamsi&location=TBD&sf=true&output=xml'
+  
   return {
     subject: `RSVP Confirmation - ${process.env.COUPLE_NAMES} Wedding`,
     html: `
@@ -29,29 +33,31 @@ const createRsvpConfirmationEmail = (guestName, rsvpDetails) => {
         <style>
           body { font-family: Georgia, serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #d9b166 0%, #c9a156 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .header { background: linear-gradient(135deg, #8b9f87 0%, #7a8d76 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
           .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; }
-          .details { background: #f9f9f9; padding: 20px; margin: 20px 0; border-left: 4px solid #d9b166; }
+          .details { background: #f9f9f9; padding: 20px; margin: 20px 0; border-left: 4px solid #8b9f87; }
           .detail-row { margin: 10px 0; }
           .label { font-weight: bold; color: #666; }
           .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 0.9em; color: #666; border-radius: 0 0 10px 10px; }
-          .icon { display: inline-block; margin-right: 8px; }
+          .calendar-buttons { margin: 25px 0; text-align: center; }
+          .calendar-btn { display: inline-block; margin: 10px 5px; padding: 12px 24px; background: #8b9f87; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+          .calendar-btn:hover { background: #7a8d76; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1 style="margin: 0; font-size: 2em;">💕 ${process.env.COUPLE_NAMES}</h1>
+            <h1 style="margin: 0; font-size: 2em;">${process.env.COUPLE_NAMES}</h1>
             <p style="margin: 10px 0 0 0; font-size: 1.1em;">Wedding Celebration</p>
           </div>
           
           <div class="content">
-            <h2 style="color: #d9b166;">Thank You for Your RSVP!</h2>
+            <h2 style="color: #8b9f87;">Thank You for Your RSVP!</h2>
             <p>Dear ${guestName},</p>
             <p>We're delighted to confirm your RSVP for our wedding celebration on <strong>${process.env.WEDDING_DATE}</strong>!</p>
             
             <div class="details">
-              <h3 style="margin-top: 0; color: #d9b166;">Your RSVP Details:</h3>
+              <h3 style="margin-top: 0; color: #8b9f87;">Your RSVP Details:</h3>
               <div class="detail-row">
                 <span class="label">Number of Guests:</span> ${adultsAttending || 0}
               </div>
@@ -68,6 +74,12 @@ const createRsvpConfirmationEmail = (guestName, rsvpDetails) => {
                 <span class="label">Your Message:</span><br>
                 <em>"${message}"</em>
               </div>` : ''}
+            </div>
+            
+            <div class="calendar-buttons">
+              <h3 style="color: #8b9f87; margin-bottom: 15px;">📅 Add to Your Calendar</h3>
+              ${attendingWedding ? `<a href="${weddingCalendarLink}" class="calendar-btn" target="_blank">Add Wedding Ceremony<br><span style="font-size: 0.85em; font-weight: normal;">8:00 AM - 2:00 PM</span></a>` : ''}
+              ${attendingReception ? `<a href="${receptionCalendarLink}" class="calendar-btn" target="_blank">Add Reception<br><span style="font-size: 0.85em; font-weight: normal;">6:30 PM - Midnight</span></a>` : ''}
             </div>
             
             <p>If you need to update your RSVP, you can always visit our website and submit a new response.</p>
@@ -119,7 +131,7 @@ const createBulkEmail = (subject, message, isHtml = false) => {
           <style>
             body { font-family: Georgia, serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #d9b166 0%, #c9a156 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .header { background: linear-gradient(135deg, #8b9f87 0%, #7a8d76 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; }
             .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 0.9em; color: #666; border-radius: 0 0 10px 10px; }
           </style>
@@ -127,7 +139,7 @@ const createBulkEmail = (subject, message, isHtml = false) => {
         <body>
           <div class="container">
             <div class="header">
-              <h1 style="margin: 0; font-size: 2em;">💕 ${process.env.COUPLE_NAMES}</h1>
+              <h1 style="margin: 0; font-size: 2em;">${process.env.COUPLE_NAMES}</h1>
               <p style="margin: 10px 0 0 0; font-size: 1.1em;">Wedding Celebration</p>
             </div>
             

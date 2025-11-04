@@ -101,7 +101,7 @@ router.get('/search-guests', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { guestId, adultsAttending, attendingWedding, attendingReception, usingHotelBlock, message } = req.body
+    const { guestId, adultsAttending, attendingWedding, attendingReception, usingHotelBlock, message, email } = req.body
     
     if (guestId) {
       // Check if guest exists
@@ -127,6 +127,7 @@ router.post('/', async (req, res) => {
       // Update guest RSVP
       const guest = await Guest.findByIdAndUpdate(guestId, {
         adultsAttending: parseInt(adultsAttending) || 0,
+        email: email ? email.trim() : existingGuest.email, // Keep existing email if not provided
         attendingWedding: isAttendingWedding,
         attendingReception: isAttendingReception,
         usingHotelBlock: usingHotelBlock === 'yes',

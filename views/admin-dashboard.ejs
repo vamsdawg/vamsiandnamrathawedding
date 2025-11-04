@@ -423,6 +423,9 @@
               <div><strong>Wedding:</strong> <span class="<%= guest.attendingWedding ? 'attending-yes' : 'attending-no' %>"><%= guest.attendingWedding ? 'Yes' : 'No' %></span></div>
               <div><strong>Reception:</strong> <span class="<%= guest.attendingReception ? 'attending-yes' : 'attending-no' %>"><%= guest.attendingReception ? 'Yes' : 'No' %></span></div>
               <div><strong>Hotel:</strong> <%= guest.usingHotelBlock ? 'Yes' : 'No' %></div>
+              <% if (guest.email) { %>
+                <div style="grid-column: 1/-1;"><strong>Email:</strong> <a href="mailto:<%= guest.email %>" style="color: #d9b166;"><%= guest.email %></a></div>
+              <% } %>
               <% if (guest.message) { %>
                 <div style="grid-column: 1/-1; margin-top: 0.5rem;"><strong>Message:</strong> "<%= guest.message %>"</div>
               <% } %>

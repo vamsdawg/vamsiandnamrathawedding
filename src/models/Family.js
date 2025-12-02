@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const GuestSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
+  email: { type: String, required: false, trim: true, lowercase: true },
   rsvpSubmitted: { type: Boolean, default: false },
   adultsAttending: { type: Number, default: 0 },
   attendingWedding: { type: Boolean, default: false },

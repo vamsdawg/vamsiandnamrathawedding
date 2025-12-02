@@ -56,16 +56,48 @@ async function populateGuests() {
       process.exit(1)
     }
     
-    // Clear existing guests (optional)
-    await Guest.deleteMany({})
-    console.log('Cleared existing guests')
+    // NOTE: We do NOT delete existing guests to preserve submitted RSVPs
+    // Only add new guests that don't already exist in the database
     
-    // Add guests from CSV
+    let addedCount = 0
+    let skippedCount = 0
+    let updatedCount = 0
+    
     for (const guestData of guestsFromCSV) {
-      const guest = new Guest(guestData)
-      await guest.save()
-      console.log(`Added ${guest.name}`)
+      // Check if guest already exists by name
+      const existingGuest = await Guest.findOne({ name: guestData.name })
+      
+      if (existingGuest) {
+        if (existingGuest.rsvpSubmitted) {
+          // Guest has submitted RSVP - don't modify anything
+          console.log(`⏭️  Skipped ${guestData.name} (RSVP already submitted)`)
+          skippedCount++
+        } else {
+          // Guest exists but hasn't submitted - update invited count if different
+          if (existingGuest.invitedCount !== guestData.invitedCount) {
+            existingGuest.invitedCount = guestData.invitedCount
+            await existingGuest.save()
+            console.log(`🔄 Updated ${guestData.name} (invited count: ${guestData.invitedCount})`)
+            updatedCount++
+          } else {
+            console.log(`⏭️  Skipped ${guestData.name} (already exists, no changes)`)
+            skippedCount++
+          }
+        }
+      } else {
+        // New guest - add to database
+        const guest = new Guest(guestData)
+        await guest.save()
+        console.log(`✅ Added ${guest.name} (invited: ${guest.invitedCount})`)
+        addedCount++
+      }
     }
+    
+    console.log('\n📊 Summary:')
+    console.log(`✅ Added: ${addedCount} new guests`)
+    console.log(`🔄 Updated: ${updatedCount} guests`)
+    console.log(`⏭️  Skipped: ${skippedCount} guests (already in database or have RSVP)`)
+    console.log(`📝 Total in CSV: ${guestsFromCSV.length}`)
     
     console.log('All guests added successfully!')
     process.exit(0)

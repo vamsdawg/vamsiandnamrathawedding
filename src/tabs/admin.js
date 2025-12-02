@@ -103,16 +103,24 @@ router.post('/admin/edit/:id', async (req, res) => {
   }
 })
 
-// Delete Guest RSVP (POST)
+// Reset Guest RSVP (POST) - Clears RSVP data so guest can submit again
 router.post('/admin/delete/:id', async (req, res) => {
   if (!req.session.isAdmin) {
     return res.redirect('/admin')
   }
   try {
-    await Guest.findByIdAndDelete(req.params.id)
+    // Reset RSVP fields instead of deleting the entire entry
+    await Guest.findByIdAndUpdate(req.params.id, {
+      rsvpSubmitted: false,
+      adultsAttending: 0,
+      attendingWedding: false,
+      attendingReception: false,
+      usingHotelBlock: false,
+      message: ''
+    })
     res.redirect('/admin/dashboard')
   } catch (error) {
-    res.status(500).send('Error deleting RSVP entry')
+    res.status(500).send('Error resetting RSVP')
   }
 })
 

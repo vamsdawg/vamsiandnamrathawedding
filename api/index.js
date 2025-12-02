@@ -400,7 +400,7 @@ app.get('/faq', (req, res) => {
                getGCSBackground('faqbackground') ||
                getGCSBackground('faq background');
   const bodyClass = faqBg ? 'page-faq-bg' : '';
-  res.render('faq', { title: 'FAQ', bodyClass, faqBg });
+  res.render('faq', { title: 'Travel & FAQ', bodyClass, faqBg });
 });
 
 // ========== SERVERLESS DATABASE CONNECTION CACHING ==========

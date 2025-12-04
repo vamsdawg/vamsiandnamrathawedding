@@ -416,7 +416,7 @@ mongoose.set('bufferTimeoutMS', 5000); // Short buffer timeout to fail quickly
 
 async function connectToDatabase() {
   const now = Date.now();
-  const CONNECTION_MAX_AGE = 5 * 60 * 1000; // 5 minutes - shorter for serverless (was 10 minutes)
+  const CONNECTION_MAX_AGE = 10 * 60 * 1000; // 10 minutes - keep connections alive longer for reliability
   
   // Check if we have a valid cached connection
   const readyState = mongoose.connection.readyState;
@@ -463,17 +463,18 @@ async function connectToDatabase() {
     
     const mongo = process.env.MONGODB_URI || 'mongodb://localhost:27017/wedding_site';
     
-    // Optimized options for serverless/Vercel
+    // Optimized options for serverless/Vercel with better reliability
     const opts = {
-      serverSelectionTimeoutMS: 10000, // 10 seconds (reduced from 30)
-      socketTimeoutMS: 30000, // 30 seconds (reduced from 45)
-      maxPoolSize: 1, // Only 1 connection per serverless function (was 10)
-      minPoolSize: 0, // No minimum (was 1)
-      maxIdleTimeMS: 300000, // 5 minutes - close idle connections faster (was 10 minutes)
-      connectTimeoutMS: 10000, // 10 seconds (reduced from 30)
+      serverSelectionTimeoutMS: 15000, // 15 seconds - give more time for initial connection
+      socketTimeoutMS: 45000, // 45 seconds - longer socket timeout
+      maxPoolSize: 10, // Increase pool size for better concurrent request handling
+      minPoolSize: 1, // Keep minimum 1 connection warm
+      maxIdleTimeMS: 600000, // 10 minutes - keep connections alive longer
+      connectTimeoutMS: 15000, // 15 seconds
       retryWrites: true,
+      retryReads: true, // Also retry reads
       w: 'majority',
-      heartbeatFrequencyMS: 30000, // Check every 30 seconds (was 10 seconds)
+      heartbeatFrequencyMS: 10000, // Check every 10 seconds - more frequent health checks
       serverApi: { version: '1', strict: true, deprecationErrors: true }, // Use stable API
     };
 

@@ -43,60 +43,81 @@ router.get('/', async (req, res) => {
   res.render('rsvp', { title: 'RSVP', values: {}, rsvpBg })
 })
 
-// Search guests endpoint
+// Search guests endpoint with retry logic
 router.get('/search-guests', async (req, res) => {
-  try {
-    const { q } = req.query
-    if (!q || q.length < 2) {
-      return res.json([])
+  const maxRetries = 3;
+  let attempt = 0;
+  
+  while (attempt < maxRetries) {
+    try {
+      const { q } = req.query
+      if (!q || q.length < 2) {
+        return res.json([])
+      }
+      
+      // Check connection state
+      const mongoose = await import('mongoose');
+      const connectionState = mongoose.default.connection.readyState;
+      
+      if (connectionState !== 1) {
+        attempt++;
+        console.error(`❌ Search attempt ${attempt}/${maxRetries} - Database disconnected (state: ${connectionState})`);
+        
+        if (attempt >= maxRetries) {
+          return res.status(503).json({ 
+            error: 'Database connection unavailable. Please refresh the page.',
+            results: []
+          });
+        }
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        continue;
+      }
+      
+      console.log(`🔍 Searching for guests matching: "${q}" (attempt ${attempt + 1})`);
+      
+      // Perform the search with a timeout
+      const searchPromise = Guest.find({
+        name: { $regex: q, $options: 'i' }
+      })
+      .select('_id name rsvpSubmitted invitedCount') // Only fetch needed fields
+      .limit(10)
+      .maxTimeMS(8000) // 8 second query timeout
+      .lean(); // Use lean() for better performance
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Search timeout')), 10000)
+      );
+      
+      const guests = await Promise.race([searchPromise, timeoutPromise]);
+      
+      const results = guests.map(guest => ({
+        guestId: guest._id,
+        name: guest.name,
+        rsvpSubmitted: guest.rsvpSubmitted || false,
+        invitedCount: guest.invitedCount || 0
+      }))
+      
+      console.log(`✅ Found ${results.length} guests matching: "${q}"`);
+      return res.json(results)
+      
+    } catch (err) {
+      attempt++;
+      console.error(`❌ Search error (attempt ${attempt}/${maxRetries}):`, err.message, 'Query:', req.query.q);
+      
+      // If it's the last attempt, return error
+      if (attempt >= maxRetries) {
+        return res.status(500).json({ 
+          error: 'Search failed after multiple attempts. Please refresh the page.',
+          message: err.message,
+          results: []
+        })
+      }
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     }
-    
-    // Add connection state check
-    const mongoose = await import('mongoose');
-    const connectionState = mongoose.default.connection.readyState;
-    
-    if (connectionState !== 1) {
-      console.error('❌ Search attempted with disconnected database (state: ' + connectionState + ')');
-      return res.status(503).json({ 
-        error: 'Database connection not ready. Please try again.',
-        results: []
-      });
-    }
-    
-    console.log('🔍 Searching for guests matching:', q);
-    
-    // Perform the search with a timeout
-    const searchPromise = Guest.find({
-      name: { $regex: q, $options: 'i' }
-    })
-    .limit(10)
-    .maxTimeMS(5000) // 5 second query timeout
-    .lean(); // Use lean() for better performance
-    
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Search timeout')), 6000)
-    );
-    
-    const guests = await Promise.race([searchPromise, timeoutPromise]);
-    
-    const results = guests.map(guest => ({
-      guestId: guest._id,
-      name: guest.name,
-      rsvpSubmitted: guest.rsvpSubmitted,
-      invitedCount: guest.invitedCount || 0
-    }))
-    
-    console.log('✅ Found', results.length, 'guests matching:', q);
-    res.json(results)
-  } catch (err) {
-    console.error('❌ Error searching guests:', err.message, 'Query:', req.query.q);
-    
-    // Return helpful error response
-    res.status(500).json({ 
-      error: 'Search failed. Please refresh the page and try again.',
-      message: err.message,
-      results: []
-    })
   }
 })
 

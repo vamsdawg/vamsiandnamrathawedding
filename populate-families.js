@@ -62,7 +62,12 @@ async function populateGuests() {
     let addedCount = 0
     let skippedCount = 0
     let updatedCount = 0
+    let removedCount = 0
     
+    // Create a set of names from CSV for quick lookup
+    const csvGuestNames = new Set(guestsFromCSV.map(g => g.name))
+    
+    // Process each guest from CSV (add new or update existing)
     for (const guestData of guestsFromCSV) {
       // Check if guest already exists by name
       const existingGuest = await Guest.findOne({ name: guestData.name })
@@ -93,13 +98,33 @@ async function populateGuests() {
       }
     }
     
+    // Remove guests who are NOT in CSV and have NOT submitted RSVP
+    console.log('\n🔍 Checking for guests to remove...')
+    const allGuestsInDB = await Guest.find({})
+    
+    for (const dbGuest of allGuestsInDB) {
+      if (!csvGuestNames.has(dbGuest.name)) {
+        // Guest is in database but NOT in CSV
+        if (dbGuest.rsvpSubmitted) {
+          // Has submitted RSVP - keep them!
+          console.log(`🔒 Keeping ${dbGuest.name} (not in CSV but has submitted RSVP)`)
+        } else {
+          // Has NOT submitted RSVP - safe to remove
+          await Guest.findByIdAndDelete(dbGuest._id)
+          console.log(`🗑️  Removed ${dbGuest.name} (not in CSV, no RSVP submitted)`)
+          removedCount++
+        }
+      }
+    }
+    
     console.log('\n📊 Summary:')
     console.log(`✅ Added: ${addedCount} new guests`)
     console.log(`🔄 Updated: ${updatedCount} guests`)
     console.log(`⏭️  Skipped: ${skippedCount} guests (already in database or have RSVP)`)
+    console.log(`🗑️  Removed: ${removedCount} guests (not in CSV, no RSVP)`)
     console.log(`📝 Total in CSV: ${guestsFromCSV.length}`)
     
-    console.log('All guests added successfully!')
+    console.log('\n✨ Database sync complete!')
     process.exit(0)
   } catch (error) {
     console.error('Error:', error)

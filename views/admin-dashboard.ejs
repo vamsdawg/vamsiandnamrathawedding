@@ -342,15 +342,15 @@
   <div class="guest-list-content">
     <div class="guest-list-stats">
       <div class="guest-stat">
-        <div style="font-weight: bold; color: #28a745;"><%= guestRsvps.length %></div>
+        <div style="font-weight: bold; color: #28a745;"><%= totalResponses %></div>
         <div>RSVP'd</div>
       </div>
       <div class="guest-stat">
-        <div style="font-weight: bold; color: #dc3545;"><%= allGuests.filter(g => !g.rsvpSubmitted).length %></div>
+        <div style="font-weight: bold; color: #dc3545;"><%= pendingRsvps %></div>
         <div>No RSVP</div>
       </div>
       <div class="guest-stat">
-        <div style="font-weight: bold; color: #6c757d;"><%= totalGuests %></div>
+        <div style="font-weight: bold; color: #6c757d;"><%= totalFamilies %></div>
         <div>Total</div>
       </div>
     </div>
@@ -389,24 +389,40 @@
   <!-- Statistics -->
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-number"><%= guestRsvps.length + fallbackRsvps.length %></div>
+      <div class="stat-number"><%= totalResponses %>/<%= totalFamilies %></div>
       <div class="stat-label">Total Responses</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number"><%= totalAttending %></div>
-      <div class="stat-label">Total Guests</div>
+      <div class="stat-number"><%= totalGuestsInvited %></div>
+      <div class="stat-label">Total Guests Invited</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number"><%= weddingAttendees %></div>
-      <div class="stat-label">Wedding Ceremony</div>
+      <div class="stat-number"><%= totalGuestsAcceptedWedding %></div>
+      <div class="stat-label">Total Guests Accepted (Wedding)</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number"><%= receptionAttendees %></div>
-      <div class="stat-label">Reception</div>
+      <div class="stat-number"><%= totalGuestsAcceptedReception %></div>
+      <div class="stat-label">Total Guests Accepted (Reception)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= totalGuestsRejectedWedding %></div>
+      <div class="stat-label">Total Guests Rejected (Wedding)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= totalGuestsRejectedReception %></div>
+      <div class="stat-label">Total Guests Rejected (Reception)</div>
     </div>
     <div class="stat-card">
       <div class="stat-number"><%= hotelBlockUsers %></div>
       <div class="stat-label">Using Hotel Block</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= pendingRsvps %>/<%= totalFamilies %></div>
+      <div class="stat-label">Pending RSVPs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= totalPendingGuests %></div>
+      <div class="stat-label">Total Pending Guests</div>
     </div>
   </div>
 

@@ -2,7 +2,6 @@ Family,Database Name,Guest Count (Invited)
 Vamsi Family,Chintalapati Family (Varma),5
 Rani Athhaya,Nukkala Family,2
 Ramu Thatha,Nadimpalli Family (Ramaraju),2
-Siva Mavayya,Vegesna Family (Sivaramaraju),2
 Hari Mavayya,Vegesna Family (Harinadharaju),3
 Surya,Vegesna Family (Surya),2
 Mohan,Vegesna Family (Mohan),2
@@ -14,11 +13,10 @@ Vaishnavi,Dantuluri Family (Vaishnavi),2
 Bhargavi,Gottumukala Family (Bhargavi),2
 Vamsi Pedha Bajji,Vegesna Family (Vamsi),2
 Bangaram Chinnana,Chintalapati Family (Bangaram),3
-Sreenu Chinnana Son (Akhil),Chintalapati Family (Akhil),2
+Sreenu Chinnana Son (Akhil),Chintalapati Family (Akhil),3
 Giri Bangaram Chinnana Son,Chintalapati Family (Giridhar Varma),2
 Pavani Bangaram Chinnana Daughter,Chintalapati Family (Pavani),2
 Pedhammama,Chanderraju Family (Chenchuraju),1
-Nani Mama,Borusu Family,2
 Rajini Pedhamma,Dasaraju Family,4
 Rani Pedhamma,Chintalacharuvu Family (Koti),4
 Archana and Chris,Cretel Family,2
@@ -33,6 +31,7 @@ Chinni Pinni,Gade Family ,4
 Srinu Chinnana,Sagi Family (Srinivas Varma),2
 Banu and Vinay,Mulagapati Family,2
 Chakri Chinnana,Sagi Family (Uday),4
+Padma Atha,Sagi Family (Padma),1
 Marx,Thotakura Family,2
 Bhat Uncle,Bhat Family ,2
 Radhika Aunty,Unnithan Family,2
@@ -42,11 +41,10 @@ Sailu Aunty,Vaduri Family,2
 Soumya Aunty,Petluri Family,4
 Soma Uncle,Kothacheruvu Family,3
 Clarence Uncle,Annavajjala Family,2
-Vani Amara,Amara Family,2
 Sanjay Uncle,Sureneni Family,2
 Varaprasad Uncle,Saini Family,2
 Purnima Aunty,Yavanamada Family,5
-Muppalaraju,Muppala Family (Venkataramaraju),5
+Muppalaraju,Muppala Family (Venkataramaraju),4
 Jagadish,Konduru Family,3
 Purushottamraju,Nandimandalam Family (Purush),4
 Ramaraju,Gottumukala Family (Ramaraju),4
@@ -62,7 +60,6 @@ Rao Uncle,Nuthakki Family,4
 Narsa Reddy,Peram Family,4
 Ragunatha Reddy,Narala Family,2
 Pindi Uncle,Pindi Family,3
-Suman,Suman Family (Placeholder),3
 Madhu Uncle ,Maddali Family,4
 Ravi Dhanthaluri,Dantuluri Family,4
 Narendra Uncle,Yarabarla Family (Narendra),4
@@ -107,7 +104,6 @@ Laxmi Pinni,Sure Family (Venkata Ramana),4
 Bhairavi Akka,Javvaji Family (Nagaraju),4
 Latha Pinni,Appana Family (Kiran Kumar) ,3
 Laxmi Aunty,Kaluri Family,4
-Latha,Abhay Family,2
 Vishy Uncle,Balasubramanian Family,2
 Nikki Aunty,Chahal Family,2
 Mahankali,Mahankali Family,4
@@ -125,6 +121,9 @@ Darpally,Darpally Family,4
 Pawar,Pawar Family,4
 Panatula,Panatula Family,4
 Sarraff,Sarraff Family,4
+Gasangari,Gosangari Family,4
+Panatula,Panatula Family,4
+Sarraff,Sarraff Family,4
 Gosangari,Gosangari Family,4
 Aneesha Aunty,Sarasani Family,3
 Sneha Akka,Lingareddy Family,3
@@ -134,15 +133,11 @@ Raghu Uncle,Goverdhana,2
 Hanuman Uncle,Nandanampati Family,2
 Mattey,Mattey Family,4
 Pabba,Pabba Family,4
-Padamatinti,Padamatinti Family,3
+Padamatinti,Padamatinti Family,4
 Thammishetti,Thammishetti Family,2
-Tadikamalla,Tadikamalla Family,4
+Tadikamalla (Rajesh),Tadikamalla Family,4
 Veeravelli,Veeravelli Family,4
-Veerabomma,Veerabomma Family,2
-Thatipamula,Thatipamula Family,2
 Garlapati,Garlapati Family,2
-Maddi,Maddi Family,3
-Kukkadapu,Kukkadapu Family,2
 Adepu,Adepu Family (Srinivas),2
 Achyut,Achyut Thallada,1
 Sanj/Suhas,Narendrula Family,2
@@ -165,8 +160,15 @@ Blake,Dr. Blake Stephens,1
 JeCoy,Dr. JeCoy Hawley,1
 Reeya,Reeya Patel,2
 Patty,Jeremy Balemala & Prathyusha Venigandla,2
-Sujatha Ponnada,Ponnada Family,3
 Namratha Family,Mylarapu Family (Srinivas),4
 Garret Family,Moretz Family,2
 Scott Family,Norton Family,2
 Big Mike Family,Sudd Family,2
+Suma Muddukumar,Muddukumar Family,2
+Kiran Artam,Artam Family,2
+Vishwanath Renukuntla,Renukuntla Family,2
+Tulsai Sirvisetti,Sirvisetti Family,2
+Soujanya Basetty,Basetty Family,3
+Prashant Kollipara,Kollipara Family,2
+Ratnakar Reddy Uncle,Reddy Family,2
+Bobby Thatha,Gottumukala Family (Bobby),2

@@ -46,19 +46,73 @@ router.get('/admin/dashboard', async (req, res) => {
     const allGuests = await Guest.find({}).sort({ name: 1 })
     
     // Calculate statistics
-    const totalAttending = guestRsvps.reduce((sum, guest) => sum + (guest.adultsAttending || 0), 0)
-    const weddingAttendees = guestRsvps.filter(guest => guest.attendingWedding).length
-    const receptionAttendees = guestRsvps.filter(guest => guest.attendingReception).length
+    const totalFamilies = allGuests.length
+    const totalResponses = guestRsvps.length + fallbackRsvps.length
+    
+    // Total guests invited (sum of all invitedCount)
+    const totalGuestsInvited = allGuests.reduce((sum, guest) => sum + (guest.invitedCount || 0), 0)
+    
+    // Pending RSVPs (families that haven't submitted)
+    const pendingRsvps = allGuests.filter(guest => !guest.rsvpSubmitted).length
+    
+    // Total pending guests (sum of invitedCount for families that haven't RSVP'd)
+    const totalPendingGuests = allGuests
+      .filter(guest => !guest.rsvpSubmitted)
+      .reduce((sum, guest) => sum + (guest.invitedCount || 0), 0)
+    
+    // Wedding statistics
+    let totalGuestsAcceptedWedding = 0
+    let totalGuestsRejectedWedding = 0
+    
+    guestRsvps.forEach(guest => {
+      if (guest.attendingWedding) {
+        // Accepted wedding - count those attending
+        totalGuestsAcceptedWedding += (guest.adultsAttending || 0)
+        // Rejected wedding - count those invited but not attending (partial attendance)
+        const notAttending = (guest.invitedCount || 0) - (guest.adultsAttending || 0)
+        if (notAttending > 0) {
+          totalGuestsRejectedWedding += notAttending
+        }
+      } else {
+        // Explicitly said no to wedding - count all invited guests as rejected
+        totalGuestsRejectedWedding += (guest.invitedCount || 0)
+      }
+    })
+    
+    // Reception statistics
+    let totalGuestsAcceptedReception = 0
+    let totalGuestsRejectedReception = 0
+    
+    guestRsvps.forEach(guest => {
+      if (guest.attendingReception) {
+        // Accepted reception - count those attending
+        totalGuestsAcceptedReception += (guest.adultsAttending || 0)
+        // Rejected reception - count those invited but not attending (partial attendance)
+        const notAttending = (guest.invitedCount || 0) - (guest.adultsAttending || 0)
+        if (notAttending > 0) {
+          totalGuestsRejectedReception += notAttending
+        }
+      } else {
+        // Explicitly said no to reception - count all invited guests as rejected
+        totalGuestsRejectedReception += (guest.invitedCount || 0)
+      }
+    })
+    
     const hotelBlockUsers = guestRsvps.filter(guest => guest.usingHotelBlock).length
     
     res.render('admin-dashboard', { 
       guestRsvps, 
       fallbackRsvps,
       allGuests,
-      totalGuests: allGuests.length,
-      totalAttending,
-      weddingAttendees,
-      receptionAttendees,
+      totalFamilies,
+      totalResponses,
+      totalGuestsInvited,
+      pendingRsvps,
+      totalPendingGuests,
+      totalGuestsAcceptedWedding,
+      totalGuestsRejectedWedding,
+      totalGuestsAcceptedReception,
+      totalGuestsRejectedReception,
       hotelBlockUsers,
       title: 'RSVP Admin Dashboard'
     })

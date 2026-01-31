@@ -44,13 +44,25 @@ const __dirname = path.dirname(__filename)
 // GCS Image Configuration Helper
 let gcsConfig = null;
 try {
-  const configPath = path.join(__dirname, '../scripts/gcs-config.json');
-  if (fs.existsSync(configPath)) {
-    gcsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log(`✅ Loaded ${gcsConfig.totalImages} images from Google Cloud Storage`);
+  // Try multiple paths for different environments (local dev vs Vercel)
+  const configPaths = [
+    path.join(__dirname, '../scripts/gcs-config.json'),
+    path.join(process.cwd(), 'scripts/gcs-config.json')
+  ];
+  
+  for (const configPath of configPaths) {
+    if (fs.existsSync(configPath)) {
+      gcsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      console.log(`✅ Loaded ${gcsConfig.totalImages} images from Google Cloud Storage (${configPath})`);
+      break;
+    }
+  }
+  
+  if (!gcsConfig) {
+    console.log('⚠️  GCS config not found at any expected path');
   }
 } catch (error) {
-  console.log('ℹ️  GCS config not found, using local images');
+  console.log('❌ Error loading GCS config:', error.message);
 }
 
 // Helper functions for image URLs

@@ -233,8 +233,9 @@ app.use('/rsvp', rsvpRouter)
 app.use('/', adminRouter)
 
 app.get('/registry', (req, res) => {
-  const bodyClass = 'page-registry-bg';
-  res.render('registry', { title: 'Registry', bodyClass });
+  const registryBg = getGCSBackground('registrybackground');
+  const bodyClass = registryBg ? 'page-registry-bg' : '';
+  res.render('registry', { title: 'Registry', bodyClass, registryBg });
 });
 // Event Schedule page
 app.get('/event-schedule', (req, res) => {

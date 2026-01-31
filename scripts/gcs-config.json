@@ -2,7 +2,7 @@
   "baseUrl": "https://storage.googleapis.com/vamsi-namratha-website-images",
   "bucketName": "vamsi-namratha-website-images",
   "totalImages": 146,
-  "lastUpdated": "2025-10-18T17:35:38.244Z",
+  "lastUpdated": "2026-01-31T22:10:17.791Z",
   "galleries": {
     "nischithartham": [
       {
@@ -749,7 +749,8 @@
       "background": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/Event_Schedule/background.png",
       "faq background": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/FAQ/FAQ_background.jpg",
       "rsvp background": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/RSVP_Image/RSVP_Background.png",
-      "registrybackground": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/Registry/registrybackground.jpg"
+      "registrybackground": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/Registry/registrybackground.jpg",
+      "registrybackground1": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/Registry/registrybackground1.jpg"
     },
     "logo": "https://storage.googleapis.com/vamsi-namratha-website-images/gallery/Wedding_Logo.png"
   }

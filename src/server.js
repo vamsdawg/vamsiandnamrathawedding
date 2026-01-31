@@ -233,7 +233,7 @@ app.use('/rsvp', rsvpRouter)
 app.use('/', adminRouter)
 
 app.get('/registry', (req, res) => {
-  const registryBg = getGCSBackground('mandapam') || getGCSBackground('ceremony');
+  const registryBg = getGCSBackground('registrybackground1');
   const bodyClass = registryBg ? 'page-registry-bg' : '';
   res.render('registry', { title: 'Registry', bodyClass, registryBg });
 });

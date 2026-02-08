@@ -518,7 +518,7 @@ app.post('/admin/send-bulk-email', async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized' })
     }
 
-    const { subject, message, recipientFilter } = req.body
+    const { subject, message, recipientFilter, batchStart = 0, batchSize = 50 } = req.body
     
     if (!subject || !message) {
       return res.status(400).json({ error: 'Subject and message are required' })
@@ -553,21 +553,33 @@ app.post('/admin/send-bulk-email', async (req, res) => {
         break
     }
     
-    // Get recipients
-    const guests = await Guest.find(query).select('name email').lean()
+    // Get ALL recipients for total count
+    const allGuests = await Guest.find(query).select('name email').lean()
     
-    if (guests.length === 0) {
+    if (allGuests.length === 0) {
       return res.status(400).json({ error: 'No recipients found matching the filter' })
     }
     
+    // Get just this batch
+    const batchGuests = allGuests.slice(batchStart, batchStart + batchSize)
+    
     // Format recipients for email service
-    const recipients = guests.map(g => ({
+    const recipients = batchGuests.map(g => ({
       name: g.name,
       email: g.email
     }))
     
-    // Send emails
+    // Send emails for this batch
     const result = await sendBulkEmail(recipients, subject, message)
+    
+    // Add batch info to response
+    result.batchInfo = {
+      total: allGuests.length,
+      sent: batchStart + result.summary.sent,
+      remaining: Math.max(0, allGuests.length - (batchStart + batchSize)),
+      hasMore: (batchStart + batchSize) < allGuests.length,
+      nextBatchStart: batchStart + batchSize
+    }
     
     res.json(result)
   } catch (error) {

@@ -216,37 +216,48 @@ export const sendBulkEmail = async (recipients, subject, message) => {
     const emailContent = createBulkEmail(subject, message)
     const transporter = getTransporter()
 
+    // Send emails in parallel batches to avoid timeout
+    const BATCH_SIZE = 10 // Send 10 at a time
     const results = []
     
-    // Send emails one at a time to avoid rate limits and personalize each email
-    for (const recipient of recipients) {
-      try {
-        const mailOptions = {
-          from: `"${process.env.COUPLE_NAMES} Wedding" <${process.env.EMAIL_USER}>`,
-          to: recipient.email,
-          subject: emailContent.subject,
-          text: emailContent.text.replace('{{name}}', recipient.name || 'Guest'),
-          html: emailContent.html.replace('{{name}}', recipient.name || 'Guest')
-        }
+    for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+      const batch = recipients.slice(i, i + BATCH_SIZE)
+      
+      // Send batch in parallel
+      const batchPromises = batch.map(async (recipient) => {
+        try {
+          const mailOptions = {
+            from: `"${process.env.COUPLE_NAMES} Wedding" <${process.env.EMAIL_USER}>`,
+            to: recipient.email,
+            subject: emailContent.subject,
+            text: emailContent.text.replace('{{name}}', recipient.name || 'Guest'),
+            html: emailContent.html.replace('{{name}}', recipient.name || 'Guest')
+          }
 
-        const info = await transporter.sendMail(mailOptions)
-        results.push({ 
-          email: recipient.email, 
-          name: recipient.name,
-          success: true, 
-          messageId: info.messageId 
-        })
-        
-        // Small delay to avoid hitting rate limits (Gmail allows 500/day)
-        await new Promise(resolve => setTimeout(resolve, 100))
-      } catch (error) {
-        console.error(`Error sending to ${recipient.email}:`, error)
-        results.push({ 
-          email: recipient.email,
-          name: recipient.name, 
-          success: false, 
-          error: error.message 
-        })
+          const info = await transporter.sendMail(mailOptions)
+          return { 
+            email: recipient.email, 
+            name: recipient.name,
+            success: true, 
+            messageId: info.messageId 
+          }
+        } catch (error) {
+          console.error(`Error sending to ${recipient.email}:`, error)
+          return { 
+            email: recipient.email,
+            name: recipient.name, 
+            success: false, 
+            error: error.message 
+          }
+        }
+      })
+      
+      const batchResults = await Promise.all(batchPromises)
+      results.push(...batchResults)
+      
+      // Small delay between batches to avoid rate limits
+      if (i + BATCH_SIZE < recipients.length) {
+        await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
 

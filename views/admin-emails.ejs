@@ -487,7 +487,7 @@ We hope this email finds you well! We wanted to share an important update about 
     }
   }
   
-  // Handle form submission
+  // Handle form submission with batch sending
   document.getElementById('emailForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -508,37 +508,59 @@ We hope this email finds you well! We wanted to share an important update about 
     const spinner = document.getElementById('loadingSpinner');
     
     sendButton.disabled = true;
-    sendButton.textContent = 'Sending...';
     spinner.classList.remove('hidden');
     
+    let totalSent = 0;
+    let totalFailed = 0;
+    let batchStart = 0;
+    const batchSize = 50;
+    
     try {
-      const response = await fetch('/admin/send-bulk-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject,
-          message,
-          recipientFilter
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        showAlert(`Successfully sent ${data.summary.sent} emails! (${data.summary.failed} failed)`, 'success');
+      // Send in batches
+      do {
+        sendButton.textContent = `Sending ${totalSent}/${guestStats.selected}...`;
         
-        // Clear form
-        document.getElementById('emailForm').reset();
-        document.getElementById('previewContent').innerHTML = 'Click "Preview Email" to see how your message will look.';
+        const response = await fetch('/admin/send-bulk-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject,
+            message,
+            recipientFilter,
+            batchStart,
+            batchSize
+          })
+        });
         
-        // Refresh stats
-        fetchGuestStats('all');
-      } else {
-        showAlert('Failed to send emails: ' + (data.error || 'Unknown error'), 'error');
-      }
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to send batch');
+        }
+        
+        totalSent += data.summary.sent;
+        totalFailed += data.summary.failed;
+        
+        if (data.batchInfo.hasMore) {
+          batchStart = data.batchInfo.nextBatchStart;
+          // Small delay between batches
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          break;
+        }
+      } while (true);
+      
+      showAlert(`Successfully sent ${totalSent} emails! (${totalFailed} failed)`, 'success');
+      
+      // Clear form
+      document.getElementById('emailForm').reset();
+      document.getElementById('previewContent').innerHTML = 'Click "Preview Email" to see how your message will look.';
+      
+      // Refresh stats
+      fetchGuestStats('all');
     } catch (error) {
       console.error('Error sending emails:', error);
-      showAlert('Failed to send emails. Please try again.', 'error');
+      showAlert(`Sent ${totalSent} emails before error occurred. ${error.message}`, 'error');
     } finally {
       sendButton.disabled = false;
       sendButton.textContent = `📧 Send Email to ${guestStats.selected} Guests`;

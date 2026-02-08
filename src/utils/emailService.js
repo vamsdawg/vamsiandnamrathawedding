@@ -129,6 +129,9 @@ const createBulkEmail = (subject, message) => {
   const coupleNames = process.env.COUPLE_NAMES || 'Namratha & Vamsi'
   const weddingDate = process.env.WEDDING_DATE || 'February 28, 2026'
   
+  // Convert plain text newlines to HTML line breaks
+  const htmlMessage = message.replace(/\n/g, '<br>')
+  
   // Always use HTML formatting
   return {
     subject,
@@ -152,7 +155,7 @@ const createBulkEmail = (subject, message) => {
           </div>
           
           <div class="content">
-            ${message}
+            ${htmlMessage}
           </div>
           
           <div class="footer">

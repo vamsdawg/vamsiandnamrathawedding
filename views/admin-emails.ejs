@@ -307,17 +307,9 @@
         <input type="text" id="subject" name="subject" required placeholder="e.g., Important Update About Our Wedding">
       </div>
       
-      <!-- Email Format -->
-      <div class="form-group">
-        <div class="checkbox-group">
-          <input type="checkbox" id="isHtml" name="isHtml" checked>
-          <label for="isHtml" style="margin-bottom: 0;">Use HTML formatting (recommended for better appearance)</label>
-        </div>
-      </div>
-      
       <!-- Message Body -->
       <div class="form-group">
-        <label for="message">Message</label>
+        <label for="message">Message (HTML formatting always enabled)</label>
         <textarea id="message" name="message" required placeholder="Type your message here...
 
 You can use {{name}} to personalize with the guest's name.
@@ -429,7 +421,6 @@ We hope this email finds you well! We wanted to share an important update about 
   function previewEmail() {
     const subject = document.getElementById('subject').value;
     const message = document.getElementById('message').value;
-    const isHtml = document.getElementById('isHtml').checked;
     
     if (!subject || !message) {
       showAlert('Please enter both subject and message to preview', 'error');
@@ -440,20 +431,13 @@ We hope this email finds you well! We wanted to share an important update about 
     const sampleName = 'John Smith';
     const previewMessage = message.replace(/{{name}}/g, sampleName);
     
-    if (isHtml) {
-      previewContent.innerHTML = `
-        <div style="font-family: Georgia, serif;">
-          <strong>Subject:</strong> ${subject}<br><br>
-          ${previewMessage.replace(/\n/g, '<br>')}
-        </div>
-      `;
-    } else {
-      previewContent.innerHTML = `
-        <div style="font-family: monospace; white-space: pre-wrap;">
-          <strong>Subject:</strong> ${subject}\n\n${previewMessage}
-        </div>
-      `;
-    }
+    // Always show HTML preview
+    previewContent.innerHTML = `
+      <div style="font-family: Georgia, serif;">
+        <strong>Subject:</strong> ${subject}<br><br>
+        ${previewMessage.replace(/\n/g, '<br>')}
+      </div>
+    `;
   }
   
   // Send test email
@@ -461,7 +445,6 @@ We hope this email finds you well! We wanted to share an important update about 
     const testEmail = document.getElementById('testEmail').value;
     const subject = document.getElementById('subject').value;
     const message = document.getElementById('message').value;
-    const isHtml = document.getElementById('isHtml').checked;
     
     if (!testEmail) {
       showAlert('Please enter an email address for the test', 'error');
@@ -484,8 +467,7 @@ We hope this email finds you well! We wanted to share an important update about 
         body: JSON.stringify({
           email: testEmail,
           subject,
-          message,
-          isHtml
+          message
         })
       });
       
@@ -512,7 +494,6 @@ We hope this email finds you well! We wanted to share an important update about 
     const subject = document.getElementById('subject').value;
     const message = document.getElementById('message').value;
     const recipientFilter = document.getElementById('recipientFilter').value;
-    const isHtml = document.getElementById('isHtml').checked;
     
     if (guestStats.selected === 0) {
       showAlert('No recipients match the selected filter. Please choose a different filter.', 'error');
@@ -537,8 +518,7 @@ We hope this email finds you well! We wanted to share an important update about 
         body: JSON.stringify({
           subject,
           message,
-          recipientFilter,
-          isHtml
+          recipientFilter
         })
       });
       

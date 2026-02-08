@@ -518,7 +518,7 @@ app.post('/admin/send-bulk-email', async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized' })
     }
 
-    const { subject, message, recipientFilter, isHtml } = req.body
+    const { subject, message, recipientFilter } = req.body
     
     if (!subject || !message) {
       return res.status(400).json({ error: 'Subject and message are required' })
@@ -567,7 +567,7 @@ app.post('/admin/send-bulk-email', async (req, res) => {
     }))
     
     // Send emails
-    const result = await sendBulkEmail(recipients, subject, message, isHtml)
+    const result = await sendBulkEmail(recipients, subject, message)
     
     res.json(result)
   } catch (error) {
@@ -583,7 +583,7 @@ app.post('/admin/send-test-email', async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized' })
     }
 
-    const { email, subject, message, isHtml } = req.body
+    const { email, subject, message } = req.body
     
     if (!email || !subject || !message) {
       return res.status(400).json({ error: 'Email, subject, and message are required' })
@@ -591,7 +591,7 @@ app.post('/admin/send-test-email', async (req, res) => {
     
     // Send test email using the bulk email function with one recipient
     const recipients = [{ name: 'Test User', email }]
-    const result = await sendBulkEmail(recipients, subject, message, isHtml)
+    const result = await sendBulkEmail(recipients, subject, message)
     
     if (result.success && result.summary.sent > 0) {
       res.json({ success: true, messageId: result.results[0].messageId })

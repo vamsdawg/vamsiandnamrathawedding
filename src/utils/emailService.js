@@ -125,50 +125,44 @@ ${coupleNames}
   }
 }
 
-const createBulkEmail = (subject, message, isHtml = false) => {
+const createBulkEmail = (subject, message) => {
   const coupleNames = process.env.COUPLE_NAMES || 'Namratha & Vamsi'
   const weddingDate = process.env.WEDDING_DATE || 'February 28, 2026'
   
-  if (isHtml) {
-    return {
-      subject,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            body { font-family: Georgia, serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #8b9f87 0%, #7a8d76 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; }
-            .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 0.9em; color: #666; border-radius: 0 0 10px 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1 style="margin: 0; font-size: 2em;">${coupleNames}</h1>
-              <p style="margin: 10px 0 0 0; font-size: 1.1em;">Wedding Celebration</p>
-            </div>
-            
-            <div class="content">
-              ${message}
-            </div>
-            
-            <div class="footer">
-              <p>Wedding Date: ${weddingDate}</p>
-            </div>
+  // Always use HTML formatting
+  return {
+    subject,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Georgia, serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #8b9f87 0%, #7a8d76 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; }
+          .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 0.9em; color: #666; border-radius: 0 0 10px 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 2em;">${coupleNames}</h1>
+            <p style="margin: 10px 0 0 0; font-size: 1.1em;">Wedding Celebration</p>
           </div>
-        </body>
-        </html>
-      `,
-      text: message.replace(/<[^>]*>/g, '') // Strip HTML tags for plain text version
-    }
-  } else {
-    return {
-      subject,
-      text: message
-    }
+          
+          <div class="content">
+            ${message}
+          </div>
+          
+          <div class="footer">
+            <p>Wedding Date: ${weddingDate}</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+    text: message.replace(/<[^>]*>/g, '') // Strip HTML tags for plain text version
   }
 }
 
@@ -206,7 +200,7 @@ export const sendRsvpConfirmation = async (recipientEmail, guestName, rsvpDetail
 }
 
 // Send bulk email to multiple recipients
-export const sendBulkEmail = async (recipients, subject, message, isHtml = false) => {
+export const sendBulkEmail = async (recipients, subject, message) => {
   try {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
       throw new Error('Email service not configured')
@@ -216,7 +210,7 @@ export const sendBulkEmail = async (recipients, subject, message, isHtml = false
       throw new Error('No recipients provided')
     }
 
-    const emailContent = createBulkEmail(subject, message, isHtml)
+    const emailContent = createBulkEmail(subject, message)
     const transporter = getTransporter()
 
     const results = []

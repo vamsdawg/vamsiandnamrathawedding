@@ -274,6 +274,30 @@
   const rsvpForm = document.getElementById('rsvpForm');
   let searchTimeout;
   let guestSelected = false; // Track if a guest has been selected
+  const rsvpLocked = <%= typeof rsvpLocked !== 'undefined' && rsvpLocked ? 'true' : 'false' %>;
+
+  // Prevent any form interaction if RSVPs are locked
+  if (rsvpLocked) {
+    rsvpForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('RSVPs are now closed. Please contact us if you need to make changes.');
+      return false;
+    });
+    
+    // Prevent search input from being used
+    searchInput.addEventListener('focus', function(e) {
+      e.preventDefault();
+      this.blur();
+    });
+    
+    searchInput.addEventListener('input', function(e) {
+      e.preventDefault();
+      this.value = '';
+    });
+    
+    // Block any attempts to enable the form
+    return; // Exit script early
+  }
 
   // Prevent form submission if guest not selected
   rsvpForm.addEventListener('submit', function(e) {
@@ -323,14 +347,22 @@
       const response = await fetch(`/rsvp/search-guests?q=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
+        if (response.status === 403) {
+          // RSVPs are locked
+          searchResults.innerHTML = '<div class="search-item" style="color: #d9b166;">RSVPs are now closed.</div>';
+          searchResults.style.display = 'block';
+          return;
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
       
-      // Check if response has error field
-      if (data.error) {
-        throw new Error(data.error);
+      // Check if response has error field or locked status
+      if (data.locked || data.error) {
+        searchResults.innerHTML = '<div class="search-item" style="color: #d9b166;">RSVPs are now closed.</div>';
+        searchResults.style.display = 'block';
+        return;
       }
       
       // Handle results array

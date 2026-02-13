@@ -46,6 +46,16 @@ router.get('/', async (req, res) => {
 
 // Search guests endpoint with retry logic
 router.get('/search-guests', async (req, res) => {
+  // Check if RSVPs are locked
+  const rsvpLocked = process.env.RSVP_LOCKED === 'true';
+  if (rsvpLocked) {
+    return res.status(403).json({ 
+      error: 'RSVPs are now closed.',
+      locked: true,
+      results: []
+    });
+  }
+  
   const maxRetries = 3;
   let attempt = 0;
   

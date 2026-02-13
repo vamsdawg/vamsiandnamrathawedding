@@ -206,7 +206,7 @@
       <!-- Guest Search - Always Visible -->
       <div class="form-group">
         <label class="form-label">Search for your family name:</label>
-        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." autocomplete="off" autocorrect="off" autocapitalize="words" <% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>disabled<% } %>>
+        <input type="text" id="guestSearch" class="form-input" placeholder="<% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>RSVP's are locked: please reach out directly regarding any changes<% } else { %>Start typing your last name...<% } %>" autocomplete="off" autocorrect="off" autocapitalize="words" <% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>disabled<% } %>>
         <div id="searchResults" class="search-results"></div>
       </div>
       

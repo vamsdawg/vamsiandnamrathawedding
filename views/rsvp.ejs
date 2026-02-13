@@ -187,19 +187,26 @@
   <div class="rsvp-container">
     <h1 style="color: #fff; text-align: center; margin: 0 0 2rem 0; font-size: 2.5rem;">RSVP</h1>
     
+    <% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>
+      <div style="background: rgba(217, 177, 102, 0.2); color: #d9b166; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #d9b166; text-align: center;">
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.5rem;">RSVPs Are Now Closed</h2>
+        <p style="margin: 0;">Thank you for your interest! If you need to make changes to your RSVP, please contact us directly.</p>
+      </div>
+    <% } %>
+    
     <% if (typeof error !== 'undefined') { %>
       <div style="background: rgba(255, 0, 0, 0.2); color: #ff6b6b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ff6b6b;">
         <%= error %>
       </div>
     <% } %>
     
-    <form method="post" id="rsvpForm">
+    <form method="post" id="rsvpForm" <% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>style="display: none;"<% } %>>
       <input type="hidden" name="guestId" id="selectedGuestId">
       
       <!-- Guest Search - Always Visible -->
       <div class="form-group">
         <label class="form-label">Search for your family name:</label>
-        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." autocomplete="off" autocorrect="off" autocapitalize="words">
+        <input type="text" id="guestSearch" class="form-input" placeholder="Start typing your last name..." autocomplete="off" autocorrect="off" autocapitalize="words" <% if (typeof rsvpLocked !== 'undefined' && rsvpLocked) { %>disabled<% } %>>
         <div id="searchResults" class="search-results"></div>
       </div>
       

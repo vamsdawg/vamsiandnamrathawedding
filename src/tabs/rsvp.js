@@ -40,7 +40,8 @@ const router = Router()
 
 router.get('/', async (req, res) => {
   const rsvpBg = getGCSBackground('rsvp background') || '/images/gallery/RSVP Image/RSVP Background.png';
-  res.render('rsvp', { title: 'RSVP', values: {}, rsvpBg })
+  const rsvpLocked = process.env.RSVP_LOCKED === 'true';
+  res.render('rsvp', { title: 'RSVP', values: {}, rsvpBg, rsvpLocked })
 })
 
 // Search guests endpoint with retry logic
@@ -122,6 +123,19 @@ router.get('/search-guests', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
+  // Check if RSVPs are locked (guests cannot submit, but admin can still edit via dashboard)
+  const rsvpLocked = process.env.RSVP_LOCKED === 'true';
+  if (rsvpLocked) {
+    const rsvpBg = getGCSBackground('rsvp background') || '/images/gallery/RSVP Image/RSVP Background.png';
+    return res.status(403).render('rsvp', { 
+      title: 'RSVP', 
+      error: 'RSVPs are now closed. Please contact us if you need to make changes.', 
+      values: req.body,
+      rsvpBg,
+      rsvpLocked: true
+    });
+  }
+  
   try {
     const { guestId, adultsAttending, attendingWedding, attendingReception, usingHotelBlock, message, email } = req.body
     
